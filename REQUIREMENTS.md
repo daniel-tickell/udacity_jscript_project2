@@ -15,7 +15,6 @@ These are the notes from a meeting with the frontend developer that describe wha
 - [OPTIONAL] Products by category (args: product category)
 
 
-
 #### Users
 - Index [token required]
 - Show [token required]
@@ -25,23 +24,29 @@ These are the notes from a meeting with the frontend developer that describe wha
 - Current Order by user (args: user id)[token required]
 - [OPTIONAL] Completed Orders by user (args: user id)[token required]
 
-## Data Shapes
-#### Product
--  id
-- name
-- price
-- [OPTIONAL] category
 
-#### User
-- id
-- firstName
-- lastName
-- password
+## Data Base Schema
 
-#### Orders
-- id
-- id of each product in the order
-- quantity of each product in the order
-- user_id
-- status of order (active or complete)
+Table Name products 
+	id (Implicit) 
+	name (String) 
+	price (number)
+	category (String)
+	
+Table Name users
+	id (Implicit) 
+	firstName (String) 
+	lastName (String)
+	password (Salted Hash)
 
+Table Name orders
+	id (Implicit) 
+	user_id (REFERENCES users(id))
+		status varchar(30)
+
+Table order_items (
+  order_id (REFERENCES orders(id))
+  product_id (REFERENCES products(id))
+  quantity (Number)
+  PRIMARY KEY (order_id, product_id)
+);

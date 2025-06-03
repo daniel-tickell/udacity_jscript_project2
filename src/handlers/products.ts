@@ -1,15 +1,15 @@
 import express, { Request, Response } from 'express'
-import { Product, ProductStore} from '../models/products.ts'
+import { Item, ItemStore} from '../models/products'
 
-const store = new ProductStore()
+const store = new ItemStore()
 
 const index = async (_req: Request, res: Response) => {
-	const products = await.store.index();
-	res.json(products);
+	const items = await store.index();
+	res.json(items);
 }
 
 const product_routes = (app: express.Application) => {
- 	app.get('products', index);
+ 	app.get('items', index);
 }
 
 
