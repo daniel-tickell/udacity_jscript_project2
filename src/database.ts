@@ -17,19 +17,19 @@ let client
 
 if (ENV === 'test') {
   client = new Pool({
-    host: POSTGRES_HOST,
-    database: POSTGRES_TEST_DB,
-    user: POSTGRES_USER,
-    password: POSTGRES_PASSWORD,
+    host: process.env.POSTGRES_HOST,
+    database: process.env.POSTGRES_TEST_DB,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
   })
 }
 
-if (ENV === 'dev') {
+if (ENV === 'prod') {
   client = new Pool({
-    host: POSTGRES_HOST,
-    database: POSTGRES_DB,
-    user: POSTGRES_USER,
-    password: POSTGRES_PASSWORD,
+    host: process.env.POSTGRES_HOST,
+    database: process.env.POSTGRES_DB,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
   })
 }
 

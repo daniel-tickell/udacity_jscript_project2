@@ -1,9 +1,10 @@
 {
   "test": {
     "driver": "pg",
-    "host": "127.0.0.1",
-    "user": "item_store",
-    "password": "password123",
-    "database": "item_store"
+    "host": { "ENV": "POSTGRES_HOST"},
+    "user": { "ENV":"POSTGRES_USER"},
+    "password": { "ENV":"POSTGRES_PASSWORD"},
+    "database": { "ENV":"POSTGRES_TEST_DB"}
   }
 }
+
