@@ -4,7 +4,26 @@
 
 # Storefront Backend Project
 
+## Environment Setup
 
+1. Clone the repositry
+2. Create a .env file in the root directory of the cloned project
+	* the .env file will need the following entries
+	```
+	POSTGRES_HOST=127.0.0.1
+	POSTGRES_DB=item_store
+	POSTGRES_USER= <your postgres user>
+	POSTGRES_PASSWORD= <your postgres password>
+	POSTGRES_TEST_DB=item_store_test
+	ENV=test
+	```
+
+
+
+
+
+
+# Template
  - Forked from https://github.com/udacity/nd0067-c2-creating-an-api-with-postgresql-and-express-project-starter
 
 ## Getting Started
