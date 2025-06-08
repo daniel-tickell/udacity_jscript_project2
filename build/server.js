@@ -1,14 +1,9 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const body_parser_1 = __importDefault(require("body-parser"));
-const products_1 = __importDefault(require("./handlers/products"));
-const app = (0, express_1.default)();
+import express from 'express';
+import bodyParser from 'body-parser';
+import product_routes from './handlers/products';
+const app = express();
 const address = "0.0.0.0:3000";
-app.use(body_parser_1.default.json());
+app.use(bodyParser.json());
 app.get('/products', (_req, res) => {
     try {
         res.send('this is the INDEX route');
@@ -31,10 +26,8 @@ app.post('/products', (req, res) => {
     const item = {
         id: req.body.id,
         name: req.body.name,
-        descripton: req.body.descripton,
-        units_available: req.body.units_available,
+        category: req.body.category,
         price: req.body.price,
-        units_sold: req.body.units_sold
     };
     try {
         res.send('this is the CREATE route');
@@ -48,10 +41,8 @@ app.put('/products/:id', (req, res) => {
     const item = {
         id: req.body.id,
         name: req.body.name,
-        descripton: req.body.descripton,
-        units_available: req.body.units_available,
+        category: req.body.category,
         price: req.body.price,
-        units_sold: req.body.units_sold
     };
     try {
         res.send('this is the EDIT route');
@@ -70,7 +61,7 @@ app.delete('/products/:id', (_req, res) => {
         res.json(err);
     }
 });
-(0, products_1.default)(app);
+product_routes(app);
 app.listen(3000, function () {
     console.log(`starting app on: ${address}`);
 });

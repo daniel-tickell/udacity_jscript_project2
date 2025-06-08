@@ -31,10 +31,8 @@ app.post('/products', (req: Request, res: Response) => {
     const item: Item = {
       id: req.body.id as number,    
       name: req.body.name,
-      descripton: req.body.descripton,
-      units_available: req.body.units_available, 
-      price: req.body.price,
-      units_sold: req.body.units_sold
+      category: req.body.category,
+      price: req.body.price as number,
     }
     try {
        res.send('this is the CREATE route')
@@ -48,10 +46,8 @@ app.put('/products/:id', (req: Request, res: Response) => {
     const item: Item = {
       id: req.body.id as number,    
       name: req.body.name,
-      descripton: req.body.descripton,
-      units_available: req.body.units_available, 
-      price: req.body.price,
-      units_sold: req.body.units_sold
+      category: req.body.category,
+      price: req.body.price as number,
     }
     try {
        res.send('this is the EDIT route')

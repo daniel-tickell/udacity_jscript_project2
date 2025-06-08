@@ -50,3 +50,13 @@ Table order_items (
   quantity (Number)
   PRIMARY KEY (order_id, product_id)
 );
+
+{
+  "test": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "user": "item_store",
+    "password": "password123",
+    "database": "item_store"
+  }
+}
