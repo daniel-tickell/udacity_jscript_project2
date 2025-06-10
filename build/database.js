@@ -11,3 +11,4 @@ const client = new Pool({
     password: POSTGRES_PASSWORD,
 });
 export default client;
+//# sourceMappingURL=database.js.map

@@ -1,6 +1,6 @@
 import { ItemStore } from '../products.js';
 const store = new ItemStore();
-describe("Item Model", () => {
+describe("Item Model: ", () => {
     it('should have an index method', () => {
         expect(store.index).toBeDefined();
     });
@@ -18,13 +18,12 @@ describe("Item Model", () => {
     });
     it('create method should add a item', async () => {
         const result = await store.create({
-            id: 2,
             name: "test item",
             price: 5.99,
             category: "This is a test item",
         });
         expect(result).toEqual({
-            id: 2,
+            id: jasmine.any(Number),
             name: "test item",
             price: 5.99,
             category: "This is a test item",
@@ -54,3 +53,4 @@ describe("Item Model", () => {
         expect(result).toEqual([]);
     });
 });
+//# sourceMappingURL=products_spec.js.map

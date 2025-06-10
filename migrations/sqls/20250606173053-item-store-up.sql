@@ -1,7 +1,7 @@
 CREATE TABLE products 
 	(id SERIAL PRIMARY KEY, 
 		name varchar(30), 
-		price decimal, 
+		price decimal(10,2), 
 		category varchar(30)
 	);
 CREATE TABLE users
