@@ -23,13 +23,15 @@ export class ItemStore {
     }
   }
 
-  async show(id: string): Promise<Item> {
+  async show(id: number): Promise<Item> {
     try {
     const sql = 'SELECT * FROM products WHERE id=($1)'
     const conn = await Client.connect()
     const result = await conn.query(sql, [id])
     conn.release()
     console.log("product id query route hit (models)")
+    result.rows[0].price = parseFloat(result.rows[0].price)
+    result.rows[0].id = parseFloat(result.rows[0].id)
     return result.rows[0]
     } catch (err) {
         throw new Error(`Could not find product ${id}. Error: ${err}`)
@@ -40,19 +42,43 @@ export class ItemStore {
       try {
     const sql = 'INSERT INTO products (name, price, category) VALUES($1, $2, $3) RETURNING *'
     const conn = await Client.connect()
-    console.log(b)
     const result = await conn
         .query(sql, [b.name, b.price, b.category])
     const item = result.rows[0]
     console.log("create route hit (models)")
     conn.release()
+    if (!item) {
+      throw new Error("Product creation failed, no item returned from database.");
+    }
+    item.price = parseFloat(item.price);
+    item.id = parseInt(item.id);
     return item
       } catch (err) {
           throw new Error(`Could not add new product ${b.name}. Error: ${err}`)
       }
   }
 
-  async delete(id: string): Promise<Item> {
+  async update(b: Item): Promise<Item> {
+      try {
+    const sql = 'update products SET price = $2 WHERE id = $1 RETURNING products.*;'
+    const conn = await Client.connect()
+    const result = await conn
+        .query(sql, [b.id, b.price])
+    const item = result.rows[0]
+    console.log("update route hit (models)")
+    conn.release()
+    if (!item) {
+      throw new Error(`Product update failed, no item returned from database.`);
+    }
+    item.price = parseFloat(item.price);
+    item.id = parseInt(item.id);
+    return item
+      } catch (err) {
+          throw new Error(`Could not update product ${b.id}. Error: ${err}`)
+      }
+  }
+
+  async delete(id: number): Promise<Item> { 
       try {
     const sql = 'DELETE FROM products WHERE id=($1)'
     const conn = await Client.connect()

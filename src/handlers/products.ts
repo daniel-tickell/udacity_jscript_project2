@@ -9,7 +9,7 @@ const index = async (_req: Request, res: Response) => {
 }
 
 const show = async (req: Request, res: Response) => {
-   const product = await store.show(req.params.id)
+   const product = await store.show(parseInt(req.params.id))
    res.json(product)
 }
 
@@ -47,6 +47,31 @@ const create = async (req: Request, res: Response) => {
     }
 }
 
+const update = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const { name, price, category } = req.body;
+
+    try {
+        const existingProduct = await store.show(parseInt(id));
+        if (!existingProduct) {
+            return res.status(404).json({ error: `Product with ID ${id} not found.` });
+        }
+        const productToUpdate: Item = {
+            id: existingProduct.id, // Keep the original ID
+            name: name ?? existingProduct.name,
+            price: price ?? existingProduct.price,
+            category: category ?? existingProduct.category,
+        };
+        const updatedProduct = await store.update(productToUpdate);
+        res.json(updatedProduct);
+    } catch (err) {
+        res.status(500).json({ 
+            error: `Failed to update product with ID ${id}.`,
+            originalError: err instanceof Error ? err.message : String(err)
+        });
+    }
+};
+
 const destroy = async (req: Request, res: Response) => {
     const deleted = await store.delete(req.body.id)
     res.json(deleted)
@@ -56,6 +81,7 @@ const productRoutes = (app: express.Application) => {
   app.get('/products', index)
   app.get('/products/:id', show)
   app.post('/products', create)
+  app.patch('/products/:id', update)
   app.delete('/products/:id', destroy)
 }
 
