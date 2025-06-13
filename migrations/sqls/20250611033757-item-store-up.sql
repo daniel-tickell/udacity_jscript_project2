@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users
 	(id SERIAL PRIMARY KEY, 
 		firstName varchar(30), 
 		lastName varchar(30), 
-		password varchar(30)
+		password varchar(100)
 	);
 CREATE TABLE IF NOT EXISTS orders
 	(id SERIAL PRIMARY KEY, 

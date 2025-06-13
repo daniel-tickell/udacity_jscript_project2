@@ -16,7 +16,7 @@ export class ItemStore {
       const sql = 'SELECT * FROM products'
       const result = await conn.query(sql)
       conn.release()
-      console.log("index route hit (models)")
+      console.log("index route hit (products)")
       return result.rows 
     } catch (err) {
       throw new Error(`Could not get products. Error: ${err}`)
@@ -29,7 +29,7 @@ export class ItemStore {
     const conn = await Client.connect()
     const result = await conn.query(sql, [id])
     conn.release()
-    console.log("product id query route hit (models)")
+    console.log("product id query route hit (products)")
     result.rows[0].price = parseFloat(result.rows[0].price)
     result.rows[0].id = parseFloat(result.rows[0].id)
     return result.rows[0]
@@ -45,7 +45,7 @@ export class ItemStore {
     const result = await conn
         .query(sql, [b.name, b.price, b.category])
     const item = result.rows[0]
-    console.log("create route hit (models)")
+    console.log("create route hit (products)")
     conn.release()
     if (!item) {
       throw new Error("Product creation failed, no item returned from database.");
@@ -65,7 +65,7 @@ export class ItemStore {
     const result = await conn
         .query(sql, [b.id, b.price])
     const item = result.rows[0]
-    console.log("update route hit (models)")
+    console.log("update route hit (products)")
     conn.release()
     if (!item) {
       throw new Error(`Product update failed, no item returned from database.`);
@@ -84,7 +84,7 @@ export class ItemStore {
     const conn = await Client.connect()
     const result = await conn.query(sql, [id])
     const item = result.rows[0]
-    console.log("delete route hit (models)")
+    console.log("delete route hit (products)")
     conn.release()
     return item
       } catch (err) {

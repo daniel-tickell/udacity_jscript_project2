@@ -1,6 +1,15 @@
 import { ItemStore } from '../products.js';
+import Client from '../../database.js'
 
 const store = new ItemStore();
+
+beforeAll(async () => {
+  console.log('--- CLEANING DATABASE TABLES ---');
+  const conn = await Client.connect();
+  const sql = 'TRUNCATE products RESTART IDENTITY CASCADE;';
+  await conn.query(sql);
+  conn.release();
+});
 
 describe("Endpoints: ", () => {
   it('should have an index method', () => {
@@ -38,9 +47,7 @@ describe("Database create: ", () => {
         category: "This is a test item", 
     });
   });
-});
 
-describe("Database update and query: ", () => {
   it('index method should return a list of items', async () => {
     const result = await store.index();
     expect(result.length).toBeGreaterThanOrEqual(0);
@@ -78,3 +85,4 @@ describe("Database delete: ", () => {
     expect(deletedProduct === undefined);
   });
 });
+
