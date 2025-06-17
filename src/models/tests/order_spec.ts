@@ -1,7 +1,22 @@
-import { OrderStore } from '../orders.js';
+import { Order,OrderStore } from '../orders.js';
+import { User, UserStore } from '../users.js';
+import { Item, ItemStore } from '../products.js';
 import Client from '../../database.js'
 
 const order = new OrderStore();
+const user = new UserStore();
+const item = new ItemStore();
+
+
+
+describe("Order Test Suite", () => {
+let testOrder: Order;
+let testOrderId: number;
+let testItem: Item;
+let testUser: User;
+let testUserId: number;
+let testAddToOrder: Order;
+
 
 beforeAll(async () => {
   console.log('--- CLEANING DATABASE TABLES ---');
@@ -9,80 +24,64 @@ beforeAll(async () => {
   const sql = 'TRUNCATE orders, order_items RESTART IDENTITY CASCADE;';
   await conn.query(sql);
   conn.release();
+  testUser = await user.create({
+      firstname: 'TestFirstname',
+      lastname: 'TestLastname',
+      password: 'testUserPassword'
+  });
+  if (testUser && testUser.id) {
+    testUserId = testUser.id;
+  } else {
+  fail(`User creation did not return a valid ID. ${testUser}`);
+    return; 
+  }
+    testOrder = await order.create({
+      userid: testUserId,
+      status: 'open',
+  });
+  if (testOrder && testOrder.orderid) {
+    testOrderId = testOrder.orderid;
+  } else {
+  fail('User creation did not return a valid ID.');
+    return; 
+  }
 });
 
-describe("Endpoints: ", () => {
   it('should have an index method', () => {
     expect(order.index).toBeDefined();
   });
 
   it('should have a show method', () => {
-    expect(order.index).toBeDefined();
+    expect(order.show).toBeDefined();
   });
 
   it('should have a create method', () => {
-    expect(order.index).toBeDefined();
+    expect(order.create).toBeDefined();
   });
 
-  it('should have a update method', () => {
-    expect(order.index).toBeDefined();
-  });
+  it('create method should add a user & a order', async () => {
 
-  it('should have a delete method', () => {
-    expect(order.index).toBeDefined();
-  });
-});
-
-describe("Database create: ", () => {
-  it('create method should add a item', async () => {
-    const createdProduct = await order.create({
-      name: 'Item to Test',
-      price: 99.99,
-      category: 'This is a test item'
-  });
-    expect(createdProduct).toEqual({
-        id: jasmine.any(Number),
-        name: "Item to Test", 
-        price: 99.99,
-        category: "This is a test item", 
+  expect(testOrder).toEqual({
+      orderid: testOrderId,
+      userid: testUserId, 
+      status: "open", 
     });
   });
 
-  it('index method should return a list of items', async () => {
+  it('index method should return a list of orders', async () => {
     const result = await order.index();
     expect(result.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('update method should update item', async () => {
-    const result = await order.update({
-      id: 1,
-      name: "Item to Test",
-      price: 88.88,
-      category: "This is a test item"
-    });
+  it('show method should return the correct orders', async () => {
+    console.log(testOrderId);
+    const result = await order.show(testOrderId);
     expect(result).toEqual({
-        id: jasmine.any(Number),
-        name: "Item to Test", 
-        price: 88.88,
-        category: "This is a test item", 
-    });
-  });
-
-  it('show method should return the correct items', async () => {
-    const result = await order.show(1);
-    expect(result).toEqual({
-      id: 1,
-      name: "Item to Test", 
-      price: 88.88, 
-      category: "This is a test item", 
+      orderid: testOrderId,
+      userid: testUserId, 
+      status: "open", 
     });
   });
 });
 
-describe("Database delete: ", () => {
-  it('delete method should remove the item', async () => {
-    const deletedProduct = await order.delete(1);
-    expect(deletedProduct === undefined);
-  });
-});
 

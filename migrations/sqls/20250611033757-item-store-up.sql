@@ -12,12 +12,12 @@ CREATE TABLE IF NOT EXISTS users
 	);
 CREATE TABLE IF NOT EXISTS orders
 	(id SERIAL PRIMARY KEY, 
-		user_id INT REFERENCES users(id),
+		userid INT REFERENCES users(id),
 		status varchar(30)
 	);
 CREATE TABLE IF NOT EXISTS order_items (
-  order_id INT REFERENCES orders(id),
-  product_id INT REFERENCES products(id),
+  orderid INT REFERENCES orders(id),
+  productid INT REFERENCES products(id),
   quantity INT,
-  PRIMARY KEY (order_id, product_id)
+  PRIMARY KEY (orderid, productid)
 );

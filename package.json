@@ -9,7 +9,7 @@
     "jasmine": "jasmine",
     "watch": "tsc-watch --onSuccess \"node ./build/server.js\"",
     "build": "npx tsc",
-    "test": "npm run build && db-migrate -e test up && cross-env ENV=test jasmine && db-migrate -e test down"
+    "test": "db-migrate -e test down && npm run build && db-migrate -e test up && cross-env ENV=test jasmine"
   },
   "author": "Udacity",
   "license": "ISC",

@@ -56,9 +56,9 @@ export class ItemStore {
       } catch (err) {
           throw new Error(`Could not add new product ${b.name}. Error: ${err}`)
       }
-  }
+    }
 
-  async update(b: Item): Promise<Item> {
+   async update(b: Item): Promise<Item> {
       try {
     const sql = 'update products SET price = $2 WHERE id = $1 RETURNING products.*;'
     const conn = await Client.connect()

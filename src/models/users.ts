@@ -54,7 +54,7 @@ export class UserStore {
       } catch (err) {
           throw new Error(`Could not add new user ${b.firstname}. Error: ${err}`)
       }
-  }
+    }
 
   async update(b: User): Promise<User> {
       try {

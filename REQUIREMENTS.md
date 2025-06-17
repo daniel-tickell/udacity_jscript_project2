@@ -1,4 +1,4 @@
- +
+	 +
 
 
  # API Requirements
@@ -30,7 +30,7 @@ These are the notes from a meeting with the frontend developer that describe wha
 Table Name products 
 	id (Implicit) 
 	name (String) 
-	price (number)
+	price (Number)
 	category (String)
 	
 Table Name users
@@ -41,12 +41,12 @@ Table Name users
 
 Table Name orders
 	id (Implicit) 
-	user_id (REFERENCES users(id))
-		status varchar(30)
+	user_id (Number REFERENCES users(id))
+	status (String)
 
 Table order_items (
-  order_id (REFERENCES orders(id))
-  product_id (REFERENCES products(id))
+  order_id (number REFERENCES orders(id))
+  product_id (number REFERENCES products(id))
   quantity (Number)
   PRIMARY KEY (order_id, product_id)
 );

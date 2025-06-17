@@ -39,7 +39,7 @@ const create = async (req: Request, res: Response) => {
         res.status(400)
         res.json(err)
     }
-}
+}   
 
 const update = async (req: Request, res: Response) => {
     const id = req.params.id;
@@ -80,4 +80,3 @@ const userRoutes = (app: express.Application) => {
 }
 
 export default userRoutes
-
