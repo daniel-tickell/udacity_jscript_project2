@@ -1,4 +1,5 @@
 import { ItemStore } from '../models/products.js';
+import jwt from 'jwt';
 const store = new ItemStore();
 const index = async (_req, res) => {
     const products = await store.index();
@@ -31,7 +32,10 @@ const create = async (req, res) => {
             category: req.query.category
         };
         const newProduct = await store.create(product);
-        res.json(newProduct);
+        var token = jwt.sign({ item: newProduct }, process.env.TOKEN_SECRET);
+        console.log(token);
+        res.json(token);
+        //res.json(newProduct)
     }
     catch (err) {
         res.status(400);

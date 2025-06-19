@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express'
 import { Item, ItemStore} from '../models/products.js'
+import jwt from 'jwt'
 
 const store = new ItemStore()
 
@@ -40,7 +41,10 @@ const create = async (req: Request, res: Response) => {
 		    category: req.query.category as string
         }
         const newProduct = await store.create(product)
-        res.json(newProduct)
+        var token = jwt.sign({ item: newProduct }, process.env.TOKEN_SECRET);
+        console.log(token);
+        res.json(token);
+        //res.json(newProduct)
     } catch(err) {
         res.status(400)
         res.json(err)
