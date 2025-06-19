@@ -2,18 +2,20 @@
 import Client from '../database.js'
 
 export type Order = {
-	orderid?: number; 
+	id?: number;
+  orderid?: number; 
 	userid?: number;    
   status?: string;
   productid?: number;
   qty?: number;
+  price?: number;
 }
 
 export class OrderStore {
   async index(): Promise<Order[]> {
     try {
       const conn = await Client.connect()
-      const sql = 'SELECT * FROM orders INNER JOIN order_items ON orders.id = order_items.orderid;'
+      const sql = 'SELECT * FROM orders;'
       const result = await conn.query(sql)
       conn.release()
       console.log("index route hit (Order)")
@@ -23,28 +25,29 @@ export class OrderStore {
     }
   }
 
-  async show(orderid: number): Promise<Order> {
+  async show(id: number): Promise<Order> {
     try {
-    const sql = 'SELECT * FROM orders INNER JOIN order_items ON orders.id = order_items.orderid  WHERE orders.id = $1'
+    const sql = 'SELECT * FROM orders WHERE orderid = $1'
     const conn = await Client.connect()
-    const result = await conn.query(sql, [orderid])
+    const result = await conn.query(sql, [id])
     conn.release()
     console.log("product id query route hit (Orders)")
-    result.rows[0].orderid = parseFloat(result.rows[0].orderid)
-    result.rows[0].productid = parseFloat(result.rows[0].productid)
-    result.rows[0].orderid = parseFloat(result.rows[0].orderid)
+    result.rows[0].id = parseInt(result.rows[0].id)
+    result.rows[0].productid = parseInt(result.rows[0].productid)
+    result.rows[0].qty = parseInt(result.rows[0].qty)
     return result.rows[0]
     } catch (err) {
-        throw new Error(`Could not find Order ${orderid}. Error: ${err}`)
+        throw new Error(`Could not find Order ${id}. Error: ${err}`)
     }
   }
 
   async create(b: Order): Promise<Order> {
       try {
-    const sql = 'INSERT INTO orders (userid, status) VALUES($1, $2) RETURNING *'
+    const line_item_string = {"product_id": b.productid, "quantity": b.qty, "price_at_purchase": b.price};
+    const sql = `INSERT INTO orders (orderid, userid, status, order_line_items) VALUES($1, $2, $3, $4) RETURNING *`;
     const conn = await Client.connect()
     const result = await conn
-        .query(sql, [b.userid, b.status])
+        .query(sql, [b.orderid, b.userid, b.status, line_item_string])
     const order = result.rows[0]
     console.log("create route hit (orders)")
     conn.release()
@@ -61,7 +64,7 @@ export class OrderStore {
 
    async add(b: Order): Promise<Order> {
     try {
-      const sql = 'INSERT INTO order_items (id, productid, qty) VALUES($1, $2, $3) RETURNING *'
+      const sql = 'INSERT INTO orders (orderid, productid, qty) VALUES($1, $2, $3) RETURNING *'
       const conn = await Client.connect()
       const result = await conn
           .query(sql, [b.orderid, b.productid, b.qty])
@@ -71,7 +74,7 @@ export class OrderStore {
       if (!order) {
         throw new Error("Product add to order failed, no item returned from database.");
       }
-      order.id = parseInt(order.orderid);
+      order.orderid = parseInt(order.orderid);
       order.productid = parseInt(order.productid);
       order.qty = parseInt(order.qty);
       return order;
@@ -82,7 +85,7 @@ export class OrderStore {
     }
     async update(b: Order): Promise<Order> {
       try {
-        const sql = 'update order_items SET qty = $3 WHERE orderid = $1 AND productid = $2 RETURNING order_items.*;'
+        const sql = 'update orders SET qty = $3 WHERE id = $1 AND productid = $2 RETURNING *;'
         const conn = await Client.connect()
         const result = await conn
             .query(sql, [b.orderid, b.productid, b.qty])
@@ -96,7 +99,7 @@ export class OrderStore {
         order.productid = parseInt(order.productid);
         return order
       } catch (err) {
-          throw new Error(`Could not update order ${b.orderid}. Error: ${err}`)
+          throw new Error(`Could not update order ${b.id}. Error: ${err}`)
       }
   }
    async delete(id: number): Promise<Order> { 

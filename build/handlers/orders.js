@@ -5,25 +5,30 @@ const index = async (_req, res) => {
     res.json(order);
 };
 const show = async (req, res) => {
-    const order = await orders.show(parseInt(req.params.orderid));
+    const order = await orders.show(parseInt(req.params.id));
     res.json(order);
 };
 const create = async (req, res) => {
-    const { userid, status } = req.query;
+    const { userid, orderid, status, productid, qty, price } = req.params;
     try {
-        if (!userid || !status) {
+        if (!userid || !status || !orderid || !productid || !qty || !price) {
             return res.status(400).send('Missing required query parameters: name, price, and category are required.');
         }
-        if (typeof userid !== 'number' || typeof status !== 'string') {
+        if (typeof userid !== 'number' || typeof status !== 'string' || typeof orderid !== 'string' || typeof productid !== 'string' || typeof qty !== 'string' || typeof price !== 'string') {
             return res.status(400).send('Query parameters must be strings.');
         }
-        const numericUserid = parseInt(userid, 10);
-        if (isNaN(numericUserid)) {
-            return res.status(400).send('The price parameter must be a valid number.');
-        }
+        const numericUserid = parseInt(req.params.userid, 10);
+        const numericOrderId = parseInt(req.params.orderid, 10);
+        const numericProductId = parseInt(req.params.productid, 10);
+        const numericQty = parseInt(req.params.qty, 10);
+        const numericPrice = parseFloat(req.params.price);
         const order = {
+            orderid: numericOrderId,
+            status: req.params.status,
             userid: numericUserid,
-            status: req.query.status
+            productid: numericProductId,
+            qty: numericQty,
+            price: numericPrice
         };
         const newOrder = await orders.create(order);
         res.json(newOrder);
@@ -34,30 +39,25 @@ const create = async (req, res) => {
     }
 };
 const add = async (req, res) => {
-    const { orderid, productid, qty } = req.query;
+    const { orderid, userid, productid, qty, price } = req.params;
     try {
-        if (!orderid || !productid || !qty) {
-            return res.status(400).send('Missing required query parameters: oderid, productid, and qty are required.');
+        const numericUserid = parseInt(req.params.userid, 10);
+        const numericOrderId = parseInt(req.params.orderid, 10);
+        const numericProductId = parseInt(req.params.productid, 10);
+        const numericQty = parseInt(req.params.qty, 10);
+        const numericPrice = parseFloat(req.params.price);
+        if (!userid || !orderid || !productid || !qty || !price) {
+            return res.status(400).send('Missing required query parameters: name, price, and category are required.');
         }
-        if (typeof orderid !== 'number' || typeof productid !== 'number' || typeof qty !== 'number') {
-            return res.status(400).send('Query parameters must be numbers.');
-        }
-        const numericOrderid = parseInt(orderid);
-        if (isNaN(numericOrderid)) {
-            return res.status(400).send('The orderid parameter must be a valid number.');
-        }
-        const numericProductId = parseInt(productid);
-        if (isNaN(numericProductId)) {
-            return res.status(400).send('The productid parameter must be a valid number.');
-        }
-        const numericQty = parseInt(qty);
-        if (isNaN(numericQty)) {
-            return res.status(400).send('The qty parameter must be a valid number.');
+        if (typeof userid !== 'number' || typeof orderid !== 'string' || typeof productid !== 'string' || typeof qty !== 'string' || typeof price !== 'string') {
+            return res.status(400).send('Query parameters must be strings.');
         }
         const order = {
-            orderid: numericOrderid,
+            orderid: numericOrderId,
+            userid: numericUserid,
             productid: numericProductId,
-            qty: numericQty
+            qty: numericQty,
+            price: numericPrice
         };
         const addToOrder = await orders.add(order);
         res.json(addToOrder);
@@ -68,15 +68,15 @@ const add = async (req, res) => {
     }
 };
 const update = async (req, res) => {
-    const orderid = req.params.orderid;
+    const id = req.params.id;
     const { productid, qty } = req.body;
     try {
-        const existingOrder = await orders.show(parseInt(orderid));
+        const existingOrder = await orders.show(parseInt(id));
         if (!existingOrder) {
-            return res.status(404).json({ error: `Order with ID ${orderid} not found.` });
+            return res.status(404).json({ error: `Order with ID ${id} not found.` });
         }
         const orderToUpdate = {
-            orderid: existingOrder.orderid, // Keep the original ID
+            id: existingOrder.id, // Keep the original ID
             productid: productid ?? existingOrder.productid,
             qty: qty ?? existingOrder.qty,
         };
@@ -85,13 +85,13 @@ const update = async (req, res) => {
     }
     catch (err) {
         res.status(500).json({
-            error: `Failed to update order with ID ${orderid}.`,
+            error: `Failed to update order with ID ${id}.`,
             originalError: err instanceof Error ? err.message : String(err)
         });
     }
 };
 const destroy = async (req, res) => {
-    const deleted = await orders.delete(req.body.orderid);
+    const deleted = await orders.delete(req.body.id);
     res.json(deleted);
 };
 const orderRoutes = (app) => {

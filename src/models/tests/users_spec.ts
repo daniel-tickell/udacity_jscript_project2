@@ -2,13 +2,27 @@ import { User, UserStore } from '../users.js';
 import Client from '../../database.js'
 
 const user = new UserStore();
+let createdUser: User;
+let createdUserId: number;
 
 beforeAll(async () => {
-  console.log('--- CLEANING DATABASE TABLES ---');
+  console.log('--- CLEANING USER DATABASE TABLES ---');
   const conn = await Client.connect();
   const sql = 'TRUNCATE products RESTART IDENTITY CASCADE;';
   await conn.query(sql);
   conn.release();
+  console.log('--- CREATING TEST USER ---');
+  createdUser = await user.create({
+      firstname: 'TestFirstname',
+      lastname: 'TestLastname',
+      password: 'testUserPassword'
+  });
+  if (createdUser && createdUser.id) {
+    createdUserId = createdUser.id;
+  } else {
+    fail(`User creation did not return a valid ID. ${createdUser}`);
+    return; 
+  }  
 });
 
 
@@ -27,20 +41,8 @@ describe("User Endpoints: ", () => {
 });
 
 describe("Users Database create: ", () => {
-let createdUser: User;
-let createdUserId: number;
-it('create method should add a user', async () => {
-  createdUser = await user.create({
-    firstname: 'TestFirstname',
-    lastname: 'TestLastname',
-    password: 'testUserPassword'
-});
-if (createdUser && createdUser.id) {
-  createdUserId = createdUser.id;
-} else {
-fail('User creation did not return a valid ID.');
-  return; 
-}
+
+it('createdUser should exist', async () => {
   expect(createdUser).toEqual({
       id: createdUserId,
       firstname: 'TestFirstname',

@@ -1,4 +1,4 @@
-DROP TABLE order_items;
-DROP TABLE orders;
-DROP TABLE users;
-DROP TABLE products;
+DROP TABLE IF EXISTS orders;
+DROP TYPE IF EXISTS order_line_item CASCADE;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS products;

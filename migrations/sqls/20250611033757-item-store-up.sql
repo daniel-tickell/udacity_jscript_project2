@@ -10,14 +10,11 @@ CREATE TABLE IF NOT EXISTS users
 		lastName varchar(30), 
 		password varchar(100)
 	);
+
 CREATE TABLE IF NOT EXISTS orders
 	(id SERIAL PRIMARY KEY, 
 		userid INT REFERENCES users(id),
-		status varchar(30)
+		status varchar(30),
+		orderid INT, 
+		order_line_items JSONB
 	);
-CREATE TABLE IF NOT EXISTS order_items (
-  orderid INT REFERENCES orders(id),
-  productid INT REFERENCES products(id),
-  quantity INT,
-  PRIMARY KEY (orderid, productid)
-);

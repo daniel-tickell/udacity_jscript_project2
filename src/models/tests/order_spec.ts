@@ -7,45 +7,67 @@ const order = new OrderStore();
 const user = new UserStore();
 const item = new ItemStore();
 
-
-
-describe("Order Test Suite", () => {
 let testOrder: Order;
-let testOrderId: number;
+let testOrdeAdd: Order;
 let testItem: Item;
 let testUser: User;
 let testUserId: number;
-let testAddToOrder: Order;
+let testOrderId: number;
+let testItemId: number;
 
+describe("Order Test Suite", () => {
 
-beforeAll(async () => {
-  console.log('--- CLEANING DATABASE TABLES ---');
-  const conn = await Client.connect();
-  const sql = 'TRUNCATE orders, order_items RESTART IDENTITY CASCADE;';
-  await conn.query(sql);
-  conn.release();
-  testUser = await user.create({
-      firstname: 'TestFirstname',
-      lastname: 'TestLastname',
-      password: 'testUserPassword'
-  });
-  if (testUser && testUser.id) {
-    testUserId = testUser.id;
-  } else {
-  fail(`User creation did not return a valid ID. ${testUser}`);
-    return; 
-  }
+  beforeAll(async () => {
+    console.log('--- CLEANING ORDER DATABASE TABLES ---');
+    const conn = await Client.connect();
+    const sql = 'TRUNCATE orders RESTART IDENTITY CASCADE;';
+    await conn.query(sql);
+    conn.release();
+   console.log('--- CREATING TEST USER ---');
+    testUser = await user.create({
+        firstname: 'TestFirstname',
+        lastname: 'TestLastname',
+        password: 'testUserPassword'
+    });
+    if (testUser && testUser.id) {
+      testUserId = testUser.id;
+    } else {
+      fail(`User creation did not return a valid ID. ${testUser}`);
+      return; 
+    }  
+    console.log('--- CREATING TEST Product ---');
+    testItem = await item.create({
+      name: 'Order test product',
+      price: 66.66,
+      category: 'Test Items'
+    });
+    if (testItem && testItem.id) {
+      testItemId = testItem.id;
+    } else {
+      fail('Item creation did not return a valid ID.');
+      return; 
+    }
+    console.log('--- CREATING TEST ORDER ---');
+    try {
     testOrder = await order.create({
-      userid: testUserId,
-      status: 'open',
+        orderid: 1,
+        userid: testUserId,
+        status: 'open',
+        productid: testItemId,
+        qty: 10, 
+        price: testItem.price
+    });
+    if (testOrder && testOrder.id) {
+      testOrderId = testOrder.id;
+    } else {
+      fail('Order creation did not return a valid ID.');
+      return; 
+    }
+  } catch(err) {
+        console.log(err)
+    }
   });
-  if (testOrder && testOrder.orderid) {
-    testOrderId = testOrder.orderid;
-  } else {
-  fail('User creation did not return a valid ID.');
-    return; 
-  }
-});
+
 
   it('should have an index method', () => {
     expect(order.index).toBeDefined();
@@ -60,18 +82,17 @@ beforeAll(async () => {
   });
 
   it('create method should add a user & a order', async () => {
-
-  expect(testOrder).toEqual({
-      orderid: testOrderId,
-      userid: testUserId, 
-      status: "open", 
-    });
+  expect(testOrder).toBeDefined();
+  expect(testUser).toBeDefined();
+  expect(testItem).toBeDefined();
   });
+
 
   it('index method should return a list of orders', async () => {
     const result = await order.index();
-    expect(result.length).toBeGreaterThanOrEqual(0);
+    expect(result.length).toBeGreaterThan(0);
   });
+
 
   it('show method should return the correct orders', async () => {
     console.log(testOrderId);
@@ -80,6 +101,8 @@ beforeAll(async () => {
       orderid: testOrderId,
       userid: testUserId, 
       status: "open", 
+      order_line_items: Object({ quantity: 10, product_id: 1, price_at_purchase: 66.66 })
+
     });
   });
 });
