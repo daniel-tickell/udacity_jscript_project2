@@ -81,7 +81,7 @@ describe("Order Test Suite", () => {
     expect(order.create).toBeDefined();
   });
 
-  it('create method should add a user & a order', async () => {
+  it('Test objects should exist', async () => {
   expect(testOrder).toBeDefined();
   expect(testUser).toBeDefined();
   expect(testItem).toBeDefined();
@@ -98,10 +98,13 @@ describe("Order Test Suite", () => {
     console.log(testOrderId);
     const result = await order.show(testOrderId);
     expect(result).toEqual({
+      id: 1,
       orderid: testOrderId,
-      userid: testUserId, 
+      userid: testUserId,
+      productid: NaN,
+      qty: NaN,
       status: "open", 
-      order_line_items: Object({ quantity: 10, product_id: 1, price_at_purchase: 66.66 })
+      order_line_items: Object({ quantity: 10, product_id: testItemId, price_at_purchase: testItem.price })
 
     });
   });

@@ -9,6 +9,7 @@ export type Order = {
   productid?: number;
   qty?: number;
   price?: number;
+  order_line_items?: object;
 }
 
 export class OrderStore {
