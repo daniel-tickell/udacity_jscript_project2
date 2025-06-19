@@ -67,11 +67,11 @@ describe("Order Test Suite", () => {
             console.log(err);
         }
     });
-    it('should have an index method', () => {
-        expect(order.index).toBeDefined();
+    it('should have an showopen method', () => {
+        expect(order.showopen).toBeDefined();
     });
-    it('should have a show method', () => {
-        expect(order.show).toBeDefined();
+    it('should have a show closed method', () => {
+        expect(order.showclosed).toBeDefined();
     });
     it('should have a create method', () => {
         expect(order.create).toBeDefined();
@@ -81,19 +81,14 @@ describe("Order Test Suite", () => {
         expect(testUser).toBeDefined();
         expect(testItem).toBeDefined();
     });
-    it('index method should return a list of orders', async () => {
-        const result = await order.index();
-        expect(result.length).toBeGreaterThan(0);
-    });
-    it('show method should return the correct orders', async () => {
+    it('index method should return the correct order', async () => {
         console.log(testOrderId);
-        const result = await order.show(testOrderId);
+        const result = await order.index(testOrderId);
+        console.log(testOrder);
         expect(result).toEqual({
-            id: 1,
+            id: testOrderId,
             orderid: testOrderId,
             userid: testUserId,
-            productid: NaN,
-            qty: NaN,
             status: "open",
             order_line_items: Object({ quantity: 10, product_id: testItemId, price_at_purchase: testItem.price })
         });

@@ -3,14 +3,18 @@ import { Order, OrderStore} from '../models/orders.js'
 
 const orders = new OrderStore()
 
-
-const index = async (_req: Request, res: Response) => {
-  const order = await orders.index()
-  res.json(order)
+const index = async (req: Request, res: Response) => {
+   const order = await orders.index(parseInt(req.params.orderid))
+   res.json(order)
 }
 
-const show = async (req: Request, res: Response) => {
-   const order = await orders.show(parseInt(req.params.id))
+const showopen = async (req: Request, res: Response) => {
+   const order = await orders.showopen(parseInt(req.params.userid))
+   res.json(order)
+}
+
+const showclosed = async (req: Request, res: Response) => {
+   const order = await orders.showclosed(parseInt(req.params.userid))
    res.json(order)
 }
 
@@ -76,43 +80,13 @@ const add = async (req: Request, res: Response) => {
         res.json(err)
     }
 }
-const update = async (req: Request, res: Response) => {
-    const id = req.params.id;
-    const { productid, qty } = req.body;
-
-    try {	
-        const existingOrder = await orders.show(parseInt(id));
-        if (!existingOrder) {
-            return res.status(404).json({ error: `Order with ID ${id} not found.` });
-        }
-        const orderToUpdate: Order = {
-            id: existingOrder.id, // Keep the original ID
-            productid: productid ?? existingOrder.productid,
-            qty: qty ?? existingOrder.qty,
-        };
-        const updatedOrder = await orders.update(orderToUpdate);
-        res.json(updatedOrder);
-    } catch (err) {
-        res.status(500).json({ 
-            error: `Failed to update order with ID ${id}.`,
-            originalError: err instanceof Error ? err.message : String(err)
-        });
-    }
-};
-
-const destroy = async (req: Request, res: Response) => {
-    const deleted = await orders.delete(req.body.id)
-    res.json(deleted)
-}
-
 
 const orderRoutes = (app: express.Application) => {
-  app.get('/order', index)
-  app.get('/order/:id', show)
+  app.get('/order/:id', index)
+  app.get('/order/:userid', showopen)
+  app.get('/order/:userid', showclosed)
   app.post('/order', create)
   app.put('/order', add)
-  app.patch('/order/:id', update)
-  app.delete('/order/:id', destroy)
 }
 
 export default orderRoutes

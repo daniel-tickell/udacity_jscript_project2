@@ -34,40 +34,10 @@ const create = async (req, res) => {
         res.json(err);
     }
 };
-const update = async (req, res) => {
-    const id = req.params.id;
-    const { firstname, lastname, password } = req.body;
-    try {
-        const existingUser = await user.show(parseInt(id));
-        if (!existingUser) {
-            return res.status(404).json({ error: `User with ID ${id} not found.` });
-        }
-        const userToUpdate = {
-            id: existingUser.id,
-            firstname: firstname ?? existingUser.firstname,
-            lastname: lastname ?? existingUser.lastname,
-            password: password ?? existingUser.password,
-        };
-        const updatedUser = await user.update(userToUpdate);
-        res.json(updatedUser);
-    }
-    catch (err) {
-        res.status(500).json({
-            error: `Failed to update user with ID ${id}.`,
-            originalError: err instanceof Error ? err.message : String(err)
-        });
-    }
-};
-const destroy = async (req, res) => {
-    const deleted = await user.delete(req.body.id);
-    res.json(deleted);
-};
 const userRoutes = (app) => {
     app.get('/users', index);
     app.get('/users/:id', show);
     app.post('/users', create);
-    app.patch('/users/:id', update);
-    app.delete('/users/:id', destroy);
 };
 export default userRoutes;
 //# sourceMappingURL=users.js.map

@@ -56,36 +56,4 @@ export class UserStore {
       }
     }
 
-  async update(b: User): Promise<User> {
-      try {
-    const sql = 'update users SET password = $2 WHERE id = $1 RETURNING users.*;'
-    const conn = await Client.connect()
-    const result = await conn
-        .query(sql, [b.id, b.password])
-    const user = result.rows[0]
-    console.log("update route hit (users)")
-    conn.release()
-    if (!user) {
-      throw new Error(`User Password update failed, no user returned from database.`);
-    }
-    user.id = parseInt(user.id);
-    return user
-      } catch (err) {
-          throw new Error(`Could not update user ${b.id}. Error: ${err}`)
-      }
-  }
-
-  async delete(id: number): Promise<User> { 
-      try {
-    const sql = 'DELETE FROM users WHERE id=($1)'
-    const conn = await Client.connect()
-    const result = await conn.query(sql, [id])
-    const user = result.rows[0]
-    console.log("delete route hit (users)")
-    conn.release()
-    return user
-      } catch (err) {
-          throw new Error(`Could not delete users ${id}. Error: ${err}`)
-      }
-  }
 }

@@ -57,38 +57,4 @@ export class ItemStore {
           throw new Error(`Could not add new product ${b.name}. Error: ${err}`)
       }
     }
-
-   async update(b: Item): Promise<Item> {
-      try {
-    const sql = 'update products SET price = $2 WHERE id = $1 RETURNING products.*;'
-    const conn = await Client.connect()
-    const result = await conn
-        .query(sql, [b.id, b.price])
-    const item = result.rows[0]
-    console.log("update route hit (products)")
-    conn.release()
-    if (!item) {
-      throw new Error(`Product update failed, no item returned from database.`);
-    }
-    item.price = parseFloat(item.price);
-    item.id = parseInt(item.id);
-    return item
-      } catch (err) {
-          throw new Error(`Could not update product ${b.id}. Error: ${err}`)
-      }
-  }
-
-  async delete(id: number): Promise<Item> { 
-      try {
-    const sql = 'DELETE FROM products WHERE id=($1)'
-    const conn = await Client.connect()
-    const result = await conn.query(sql, [id])
-    const item = result.rows[0]
-    console.log("delete route hit (products)")
-    conn.release()
-    return item
-      } catch (err) {
-          throw new Error(`Could not delete product ${id}. Error: ${err}`)
-      }
-  }
 }

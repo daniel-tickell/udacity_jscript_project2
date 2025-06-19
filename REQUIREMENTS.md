@@ -1,6 +1,12 @@
 	 +
 
 
+ # TODO List
+ 
+ Tokens
+
+
+
  # API Requirements
 The company stakeholders want to create an online storefront to showcase their great product ideas. Users need to be able to browse an index of all products, see the specifics of a single product, and add products to an order that they can view in a cart page. You have been tasked with building the API that will support this application, and your coworker is building the frontend.
 
@@ -23,7 +29,7 @@ These are the notes from a meeting with the frontend developer that describe wha
 #### Orders
 - Current Order by user (args: user id)[token required]
 - [OPTIONAL] Completed Orders by user (args: user id)[token required]
-
+* Added index to query by id
 
 ## Data Base Schema
 
@@ -43,20 +49,5 @@ Table Name orders
 	id (Implicit) 
 	user_id (Number REFERENCES users(id))
 	status (String)
-
-Table order_items (
-  order_id (number REFERENCES orders(id))
-  product_id (number REFERENCES products(id))
-  quantity (Number)
-  PRIMARY KEY (order_id, product_id)
-);
-
-{
-  "test": {
-    "driver": "pg",
-    "host": "127.0.0.1",
-    "user": "item_store",
-    "password": "password123",
-    "database": "item_store"
-  }
-}
+	orderid (Number)
+	order_line_items (JSONB)

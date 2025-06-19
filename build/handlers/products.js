@@ -38,40 +38,10 @@ const create = async (req, res) => {
         res.json(err);
     }
 };
-const update = async (req, res) => {
-    const id = req.params.id;
-    const { name, price, category } = req.body;
-    try {
-        const existingProduct = await store.show(parseInt(id));
-        if (!existingProduct) {
-            return res.status(404).json({ error: `Product with ID ${id} not found.` });
-        }
-        const productToUpdate = {
-            id: existingProduct.id, // Keep the original ID
-            name: name ?? existingProduct.name,
-            price: price ?? existingProduct.price,
-            category: category ?? existingProduct.category,
-        };
-        const updatedProduct = await store.update(productToUpdate);
-        res.json(updatedProduct);
-    }
-    catch (err) {
-        res.status(500).json({
-            error: `Failed to update product with ID ${id}.`,
-            originalError: err instanceof Error ? err.message : String(err)
-        });
-    }
-};
-const destroy = async (req, res) => {
-    const deleted = await store.delete(req.body.id);
-    res.json(deleted);
-};
 const productRoutes = (app) => {
     app.get('/products', index);
     app.get('/products/:id', show);
     app.post('/products', create);
-    app.patch('/products/:id', update);
-    app.delete('/products/:id', destroy);
 };
 export default productRoutes;
 //# sourceMappingURL=products.js.map

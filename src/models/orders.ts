@@ -9,36 +9,48 @@ export type Order = {
   productid?: number;
   qty?: number;
   price?: number;
-  order_line_items?: object;
+  order_line_items?: object;  
 }
 
 export class OrderStore {
-  async index(): Promise<Order[]> {
+  async index(orderid: number): Promise<Order> {
     try {
       const conn = await Client.connect()
-      const sql = 'SELECT * FROM orders;'
-      const result = await conn.query(sql)
+      const sql = 'SELECT * FROM orders where id = $1;'
+      const result = await conn.query(sql, [orderid])
       conn.release()
       console.log("index route hit (Order)")
-      return result.rows 
+      return result.rows[0]
     } catch (err) {
-      throw new Error(`Could not get Order. Error: ${err}`)
+      throw new Error(`Could not get Order ${orderid}. Error: ${err}`)
     }
   }
 
-  async show(id: number): Promise<Order> {
+  async showopen(userid: number): Promise<Order> {
     try {
-    const sql = 'SELECT * FROM orders WHERE orderid = $1'
+    const sql = `SELECT * FROM orders WHERE userid = $1 AND status = 'open';`
     const conn = await Client.connect()
-    const result = await conn.query(sql, [id])
+    const result = await conn.query(sql, [userid])
     conn.release()
-    console.log("product id query route hit (Orders)")
-    result.rows[0].id = parseInt(result.rows[0].id)
-    result.rows[0].productid = parseInt(result.rows[0].productid)
-    result.rows[0].qty = parseInt(result.rows[0].qty)
+    console.log("Open order query route hit (Orders)")
+    result.rows[0].userid = parseInt(result.rows[0].userid)
     return result.rows[0]
     } catch (err) {
-        throw new Error(`Could not find Order ${id}. Error: ${err}`)
+        throw new Error(`Could not find open Orders for user ${userid}. Error: ${err}`)
+    }
+  }
+
+    async showclosed(userid: number): Promise<Order> {
+    try {
+    const sql = `SELECT * FROM orders WHERE userid = $1 AND status = 'closed';`
+    const conn = await Client.connect()
+    const result = await conn.query(sql, [userid])
+    conn.release()
+    console.log("Closed order query route hit (Orders)")
+    result.rows[0].userid = parseInt(result.rows[0].userid)
+    return result.rows[0]
+    } catch (err) {
+        throw new Error(`Could not find closed Orders for user ${userid}. Error: ${err}`)
     }
   }
 
@@ -84,37 +96,4 @@ export class OrderStore {
         throw new Error(`Could not add new item Order ${b.orderid}. Error: ${err}`)
       }
     }
-    async update(b: Order): Promise<Order> {
-      try {
-        const sql = 'update orders SET qty = $3 WHERE id = $1 AND productid = $2 RETURNING *;'
-        const conn = await Client.connect()
-        const result = await conn
-            .query(sql, [b.orderid, b.productid, b.qty])
-        const order = result.rows[0]
-        console.log("update route hit (orders)")
-        conn.release()
-        if (!order) {
-          throw new Error(`Order update failed, no item returned from database.`);
-        }
-        order.qty = parseFloat(order.qty);
-        order.productid = parseInt(order.productid);
-        return order
-      } catch (err) {
-          throw new Error(`Could not update order ${b.id}. Error: ${err}`)
-      }
-  }
-   async delete(id: number): Promise<Order> { 
-      try {
-    const sql = 'DELETE FROM orders WHERE id=($1)'
-    const conn = await Client.connect()
-    const result = await conn.query(sql, [id])
-    const order = result.rows[0]
-    console.log("delete route hit (orders)")
-    conn.release()
-    return order
-      } catch (err) {
-          throw new Error(`Could not delete order ${id}. Error: ${err}`)
-      }
-  }
-
 }
