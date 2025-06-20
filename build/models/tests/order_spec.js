@@ -1,97 +1,62 @@
 import { OrderStore } from '../orders.js';
-import { UserStore } from '../users.js';
-import { ItemStore } from '../products.js';
-import Client from '../../database.js';
-const order = new OrderStore();
-const user = new UserStore();
-const item = new ItemStore();
-let testOrder;
-let testOrdeAdd;
-let testItem;
-let testUser;
-let testUserId;
-let testOrderId;
-let testItemId;
+const orders = new OrderStore();
 describe("Order Test Suite", () => {
-    beforeAll(async () => {
-        console.log('--- CLEANING ORDER DATABASE TABLES ---');
-        const conn = await Client.connect();
-        const sql = 'TRUNCATE orders RESTART IDENTITY CASCADE;';
-        await conn.query(sql);
-        conn.release();
-        console.log('--- CREATING TEST USER ---');
-        testUser = await user.create({
-            firstname: 'TestFirstname',
-            lastname: 'TestLastname',
-            password: 'testUserPassword'
-        });
-        if (testUser && testUser.id) {
-            testUserId = testUser.id;
-        }
-        else {
-            fail(`User creation did not return a valid ID. ${testUser}`);
-            return;
-        }
-        console.log('--- CREATING TEST Product ---');
-        testItem = await item.create({
-            name: 'Order test product',
-            price: 66.66,
-            category: 'Test Items'
-        });
-        if (testItem && testItem.id) {
-            testItemId = testItem.id;
-        }
-        else {
-            fail('Item creation did not return a valid ID.');
-            return;
-        }
-        console.log('--- CREATING TEST ORDER ---');
-        try {
-            testOrder = await order.create({
-                orderid: 1,
-                userid: testUserId,
-                status: 'open',
-                productid: testItemId,
-                qty: 10,
-                price: testItem.price
-            });
-            if (testOrder && testOrder.id) {
-                testOrderId = testOrder.id;
-            }
-            else {
-                fail('Order creation did not return a valid ID.');
-                return;
-            }
-        }
-        catch (err) {
-            console.log(err);
-        }
+    it('should have an open orders method', () => {
+        expect(orders.showopen).toBeDefined();
     });
-    it('should have an showopen method', () => {
-        expect(order.showopen).toBeDefined();
+    it('should have an closed orders method', () => {
+        expect(orders.showclosed).toBeDefined();
     });
-    it('should have a show closed method', () => {
-        expect(order.showclosed).toBeDefined();
-    });
-    it('should have a create method', () => {
-        expect(order.create).toBeDefined();
-    });
-    it('Test objects should exist', async () => {
-        expect(testOrder).toBeDefined();
-        expect(testUser).toBeDefined();
-        expect(testItem).toBeDefined();
-    });
-    it('index method should return the correct order', async () => {
-        console.log(testOrderId);
-        const result = await order.index(testOrderId);
-        console.log(testOrder);
+    it('showopen method should return the user 1s open orders', async () => {
+        const result = await orders.showopen(1);
         expect(result).toEqual({
-            id: testOrderId,
-            orderid: testOrderId,
-            userid: testUserId,
-            status: "open",
-            order_line_items: Object({ quantity: 10, product_id: testItemId, price_at_purchase: testItem.price })
+            id: 1,
+            userid: 1,
+            status: 'open',
+            orderid: 1001,
+            order_line_items: jasmine.arrayContaining([
+                jasmine.objectContaining({
+                    quantity: '1',
+                    product_id: '1',
+                    product_name: 'DustBot 3000',
+                    product_category: 'General Cleaning',
+                    price_at_purchase: '199.99'
+                }),
+                jasmine.objectContaining({
+                    quantity: '1',
+                    product_id: '2',
+                    product_name: 'DishWash-Pro',
+                    product_category: 'General Cleaning',
+                    price_at_purchase: '349.50'
+                })
+            ])
+        });
+    });
+    it('showclosed method should return the user 1s closed orders', async () => {
+        const result = await orders.showclosed(1);
+        expect(result).toEqual({
+            id: 11,
+            userid: 1,
+            status: 'closed',
+            orderid: 1011,
+            order_line_items: jasmine.arrayContaining([
+                jasmine.objectContaining({
+                    quantity: '1',
+                    product_id: '3',
+                    product_name: 'FloorMop XL',
+                    product_category: 'General Cleaning',
+                    price_at_purchase: '249.99'
+                }),
+                jasmine.objectContaining({
+                    quantity: '1',
+                    product_id: '7',
+                    product_name: 'Smart Cook Helper',
+                    product_category: 'Cooking',
+                    price_at_purchase: '650.75'
+                })
+            ])
         });
     });
 });
+console.log('Order Tests Complete');
 //# sourceMappingURL=order_spec.js.map

@@ -1,58 +1,42 @@
 import { ItemStore } from '../products.js';
-import Client from '../../database.js';
 const store = new ItemStore();
-let createdProduct;
-let createdProductId;
-describe("Product test suite: ", () => {
-    beforeAll(async () => {
-        console.log('--- CLEANING PRODUCT DATABASE TABLES ---');
-        const conn = await Client.connect();
-        const sql = 'TRUNCATE products RESTART IDENTITY CASCADE;';
-        await conn.query(sql);
-        conn.release();
-        console.log('--- CREATING TEST PRODUCTS ---');
-        createdProduct = await store.create({
-            name: 'Item to Test',
-            price: 99.99,
-            category: 'This is a test item'
-        });
-        if (createdProduct && createdProduct.id) {
-            createdProductId = createdProduct.id;
-        }
-        else {
-            fail('User creation did not return a valid ID.');
-            return;
-        }
-    });
+describe("Product Test Suite", () => {
     it('should have an index method', () => {
         expect(store.index).toBeDefined();
     });
-    it('should have a show method', () => {
-        expect(store.index).toBeDefined();
+    it('should have an show method', () => {
+        expect(store.show).toBeDefined();
     });
-    it('should have a create method', () => {
-        expect(store.index).toBeDefined();
+    it('should have an create method', () => {
+        expect(store.create).toBeDefined();
     });
-    it('created product should exist', async () => {
-        expect(createdProduct).toEqual({
-            id: createdProductId,
-            name: "Item to Test",
-            price: 99.99,
-            category: "This is a test item",
+    it('showopen method should return the user 1s open products', async () => {
+        const result = await store.index();
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBeGreaterThanOrEqual(15);
+    });
+    it('show method should return product id 1s details', async () => {
+        const result = await store.show(1);
+        expect(result).toEqual({
+            id: 1,
+            name: 'DustBot 3000',
+            price: 199.99,
+            category: 'General Cleaning'
         });
     });
-    it('index method should return a list of items', async () => {
-        const result = await store.index();
-        expect(result.length).toBeGreaterThan(0);
-    });
-    it('show method should return the correct items', async () => {
-        const result = await store.show(createdProductId);
+    it('show method should return product id 1s details', async () => {
+        const result = await store.create({
+            name: 'Jasmine testBot',
+            price: 123.45,
+            category: 'Javascript Tests'
+        });
         expect(result).toEqual({
-            id: createdProductId,
-            name: "Item to Test",
-            price: 99.99,
-            category: "This is a test item",
+            id: jasmine.any(Number),
+            name: 'Jasmine testBot',
+            price: 123.45,
+            category: 'Javascript Tests'
         });
     });
 });
+console.log('Product Tests Complete');
 //# sourceMappingURL=products_spec.js.map

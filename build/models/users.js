@@ -1,4 +1,7 @@
 import Client from '../database.js';
+import bcrypt from 'bcrypt';
+const pepper = process.env.BCRYPT_PASSWORD || ''; // Provide a default value
+const saltRounds = process.env.SALT_ROUNDS || '10'; // Provide a default value
 export class UserStore {
     async index() {
         try {
@@ -6,7 +9,6 @@ export class UserStore {
             const sql = 'SELECT * FROM users';
             const result = await conn.query(sql);
             conn.release();
-            console.log("index route hit (users)");
             return result.rows;
         }
         catch (err) {
@@ -15,7 +17,7 @@ export class UserStore {
     }
     async show(id) {
         try {
-            const sql = 'SELECT * FROM users WHERE id=($1)';
+            const sql = 'SELECT * FROM users WHERE id=$1';
             const conn = await Client.connect();
             const result = await conn.query(sql, [id]);
             conn.release();
@@ -31,8 +33,9 @@ export class UserStore {
         try {
             const sql = 'INSERT INTO users (firstname, lastname, password) VALUES($1, $2, $3) RETURNING *';
             const conn = await Client.connect();
+            const hash = bcrypt.hashSync(b.password + pepper, parseInt(saltRounds));
             const result = await conn
-                .query(sql, [b.firstname, b.lastname, b.password]);
+                .query(sql, [b.firstname, b.lastname, hash]);
             const user = result.rows[0];
             console.log("create route hit (users)");
             conn.release();

@@ -1,5 +1,9 @@
 
 import Client from '../database.js'
+import bcrypt from 'bcrypt'
+
+const pepper = process.env.BCRYPT_PASSWORD || ''; // Provide a default value
+const saltRounds = process.env.SALT_ROUNDS || '10'; // Provide a default value
 
 export type User = {
 	id?: number; 
@@ -11,12 +15,12 @@ export type User = {
 
 export class UserStore {
   async index(): Promise<User[]> {
+    console.log("index route hit (users)")
     try {
       const conn = await Client.connect()
       const sql = 'SELECT * FROM users'
       const result = await conn.query(sql)
       conn.release()
-      console.log("index route hit (users)")
       return result.rows 
     } catch (err) {
       throw new Error(`Could not get users. Error: ${err}`)
@@ -24,12 +28,12 @@ export class UserStore {
   }
 
   async show(id: number): Promise<User> {
+    console.log("show route hit (users)")
     try {
-    const sql = 'SELECT * FROM users WHERE id=($1)'
+    const sql = 'SELECT * FROM users WHERE id=$1'
     const conn = await Client.connect()
     const result = await conn.query(sql, [id])
     conn.release()
-    console.log("product id query route hit (users)")
     result.rows[0].id = parseInt(result.rows[0].id)
     return result.rows[0]
     } catch (err) {
@@ -38,13 +42,14 @@ export class UserStore {
   }
 
   async create(b: User): Promise<User> {
+    console.log("create route hit (users)")
       try {
     const sql = 'INSERT INTO users (firstname, lastname, password) VALUES($1, $2, $3) RETURNING *'
     const conn = await Client.connect()
+    const hash = bcrypt.hashSync(b.password + pepper, parseInt(saltRounds))
     const result = await conn
-        .query(sql, [b.firstname, b.lastname, b.password])
+        .query(sql, [b.firstname, b.lastname, hash])
     const user = result.rows[0]
-    console.log("create route hit (users)")
     conn.release()
     if (!user) {
       throw new Error("User creation failed, no user returned from database.");

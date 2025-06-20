@@ -1,62 +1,60 @@
 import { User, UserStore } from '../users.js';
 import Client from '../../database.js'
 
-const user = new UserStore();
-let createdUser: User;
-let createdUserId: number;
-
-beforeAll(async () => {
-  console.log('--- CLEANING USER DATABASE TABLES ---');
-  const conn = await Client.connect();
-  const sql = 'TRUNCATE products RESTART IDENTITY CASCADE;';
-  await conn.query(sql);
-  conn.release();
-  console.log('--- CREATING TEST USER ---');
-  createdUser = await user.create({
-      firstname: 'TestFirstname',
-      lastname: 'TestLastname',
-      password: 'testUserPassword'
-  });
-  if (createdUser && createdUser.id) {
-    createdUserId = createdUser.id;
-  } else {
-    fail(`User creation did not return a valid ID. ${createdUser}`);
-    return; 
-  }  
-});
-
+const users = new UserStore();
 
 describe("User Endpoints: ", () => {
   it('should have an index method', () => {
-    expect(user.index).toBeDefined();
+    expect(users.index).toBeDefined();
   });
 
   it('should have a show method', () => {
-    expect(user.index).toBeDefined();
+    expect(users.show).toBeDefined();
   });
 
   it('should have a create method', () => {
-    expect(user.index).toBeDefined();
+    expect(users.create).toBeDefined();
   });
 });
 
-describe("Users Database create: ", () => {
+describe("User tests: ", () => {
 
-it('createdUser should exist', async () => {
-  expect(createdUser).toEqual({
-      id: createdUserId,
-      firstname: 'TestFirstname',
-      lastname: 'TestLastname',
-      password: 'testUserPassword'
+  it('index method should return the all users', async () => {
+  const result = await users.index();
+  expect(Array.isArray(result)).toBe(true);
+  expect(result.length).toBeGreaterThanOrEqual(10);
   });
-});
-it('show method should return the correct users', async () => {
-  const result = await user.show(createdUserId);
+
+  it('show method should return user 1', async () => {
+  const result = await users.show(1);
+  
   expect(result).toEqual({
-      id: createdUserId,
-      firstname: "TestFirstname",
-      lastname: 'TestLastname',
-      password: 'testUserPassword'
+        id: 1,        
+        firstname: 'Alice',
+        lastname: 'Smith',
+        password: jasmine.any(String)
     });
+  //check for hashed password
+  expect(result.password).toContain('$2b$10');
+  });
+
+  it('create method should return user and hashed password', async () => {
+  const result = await users.create(
+    {
+      firstname: 'This',
+      lastname: 'TestUser',
+      password: 'itsBeenALongDay'
+    });
+    expect(result).toEqual({
+        id: jasmine.any(Number),        
+        firstname: 'This',
+        lastname: 'TestUser',
+        password: jasmine.any(String)
+    });
+    //check for hashed password
+    expect(result.password).toContain('$2b$10');
+
   });
 });
+
+console.log('User Tests Complete');
