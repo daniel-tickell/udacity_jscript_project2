@@ -8,9 +8,16 @@ import jwt from 'jsonwebtoken'
 const user = new UserStore()
 
 const index = async (req: Request, res: Response) => {
-  const getUsers = await user.index();
-  const token = jwt.sign({ User: getUsers }, process.env.TOKEN_SECRET);
-  res.json(token);
+  
+  try {
+	jwt.verify(req.body.token, process.env.TOKEN_SECRET);
+  } catch(err) {
+	  res.status(401);
+	  res.json(`Invalid Token Recieved: ${err}`);
+	  return
+  }
+	const getUsers = await user.index();
+  	res.json(getUsers);
 }
 
 const show = async (req: Request, res: Response) => {
