@@ -6,7 +6,7 @@ const user = new UserStore()
 
 const verifyAuthToken(auth) = async (req: Request, res: Response, next) => {
     try {
-        const authorizationHeader = auth;
+        const authorizationHeader = req.headers.authorization;
         const token = authorizationHeader.split(' ')[1];
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
         next()
@@ -17,13 +17,11 @@ const verifyAuthToken(auth) = async (req: Request, res: Response, next) => {
 }
 
 const index = async (req: Request, res: Response) => {
-	verifyAuthToken(req.headers.authorization);
 	const getUsers = await user.index();
   	res.json(getUsers);
 }
 
 const show = async (req: Request, res: Response) => {
-	verifyAuthToken(req.headers.authorization); 
 	const showUsers = await user.show(parseInt(req.params.id))
   	res.json(showUsers);
 }
@@ -53,8 +51,8 @@ const create = async (req: Request, res: Response) => {
 }   
 
 const userRoutes = (app: express.Application) => {
-  app.get('/users', index)
-  app.get('/users/:id', show)
+  app.get('/users',verifyAuthToken, index)
+  app.get('/users/:id',verifyAuthToken, show)
   app.post('/users', create)
 }
 
