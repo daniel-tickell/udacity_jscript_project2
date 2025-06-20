@@ -1,26 +1,46 @@
 
-
-
-
 # Storefront Backend Project
 
 ## Environment Setup
 
 1. Clone the repositry
 2. Create a .env file in the root directory of the cloned project
-	* the .env file will need the following entries
-	```
-	POSTGRES_HOST=127.0.0.1
-	POSTGRES_DB=item_store
-	POSTGRES_USER= <your postgres user>
-	POSTGRES_PASSWORD= <your postgres password>
-	POSTGRES_TEST_DB=item_store_test
-	ENV=test
-	```
-
-
-
-
+* the .env file will need the following entries
+```
+POSTGRES_HOST=127.0.0.1
+POSTGRES_DB=item_store
+POSTGRES_USER= item_store
+POSTGRES_PASSWORD= password123
+POSTGRES_TEST_DB=item_store_test
+POSTGRES_TEST_USER= item_store_test
+POSTGRES_TEST_PASSWORD= password123
+ENV=prod
+SALT_ROUNDS=10
+BCRYPT_PASSWORD=awesome_password_123
+TOKEN_SECRET=awesome_token_secret
+```
+3. Install postgresql and create the databses and users
+   	Postgres commands for setup
+```
+CREATE USER item_store WITH PASSWORD 'password123';
+CREATE DATABSE item_store OWNER item_store;
+CREATE USER item_store_test WITH PASSWORD 'password123';
+CREATE DATABSE item_store_test OWNER item_store;
+```
+4. Run the Tests
+```
+yarn test
+```
+5. Populate the database with data for Prod environment
+* The db-migrate sql contains data for users, orders and products.
+* This step is not required for the test environment as its part of the test script
+```
+db-migrate -e prod up
+```
+6. Start the server
+```
+yarn watch
+```
 
 
 # Template
