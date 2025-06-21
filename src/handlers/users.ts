@@ -4,15 +4,39 @@ import { User, UserStore} from '../models/users.js'
 import jwt from 'jsonwebtoken'
 const user = new UserStore()
 
-const verifyAuthToken(auth) = async (req: Request, res: Response, next) => {
+const verifyAuthToken = async (req: Request, res: Response, next) => {
+    const authorizationHeader = req.headers.authorization;
     try {
-        const authorizationHeader = req.headers.authorization;
+        if (!authorizationHeader) {
+            return res.status(401).json('Authorization header missing');
+        }
         const token = authorizationHeader.split(' ')[1];
+        if (!token) {
+            return res.status(401).json('Token missing from Authorization header');
+        }
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
         next()
     } catch (err) {
         res.status(401)
 	res.json(`Invalid Token Recieved: ${err}`);
+    }
+}
+
+const authenticate = async (req: Request, res: Response) => {
+    const { username, password } = req.body; 
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required for authentication.' });
+    }
+    try {
+        const authenticatedUser = await user.authenticate(username, password);
+        if (!authenticatedUser) {
+            return res.status(401).json({ error: 'Authentication failed: Invalid credentials.' });
+        }
+        var token = jwt.sign({ user: authenticatedUser }, process.env.TOKEN_SECRET as string);
+        res.json(token)
+    } catch(error) {
+        console.error('Authentication error:', error);
+        res.status(401).json({ error: 'An unexpected error occurred during authentication.' });
     }
 }
 
@@ -37,6 +61,7 @@ const create = async (req: Request, res: Response) => {
 	    }
   
         const users: User = {
+            username:  req.body.username as string,
 		    firstname: req.body.firstname as string,
 		    lastname:  req.body.lastname as string,
 		    password:  req.body.password as string,
@@ -54,6 +79,7 @@ const userRoutes = (app: express.Application) => {
   app.get('/users',verifyAuthToken, index)
   app.get('/users/:id',verifyAuthToken, show)
   app.post('/users', create)
+  app.post('/authenticate', authenticate)
 }
 
 export default userRoutes

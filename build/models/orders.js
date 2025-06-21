@@ -1,8 +1,18 @@
 import Client from '../database.js';
 export class OrderStore {
     async showopen(userid) {
+        console.log("show open route hit (orders)");
         try {
-            const sql = `SELECT * FROM orders WHERE userid = $1 AND status = 'open';`;
+            const sql = ` SELECT
+          o.id AS order_id,
+          u.id as userid,
+          u.username,
+          u.firstName,
+          u.lastName,
+          o.status
+        FROM orders o
+        JOIN users u ON o.userid = u.id
+        WHERE o.status = 'open' AND u.id = $1;`;
             const conn = await Client.connect();
             const result = await conn.query(sql, [userid]);
             conn.release();
@@ -16,8 +26,17 @@ export class OrderStore {
     }
     async showclosed(userid) {
         try {
-            console.log(userid);
-            const sql = `SELECT * FROM orders WHERE userid = $1 AND status = 'closed';`;
+            console.log("show closed route hit (orders)");
+            const sql = ` SELECT
+          o.id AS order_id,
+          u.id as userid,
+          u.username,
+          u.firstName,
+          u.lastName,
+          o.status
+        FROM orders o
+        JOIN users u ON o.userid = u.id
+        WHERE o.status = 'closed' AND u.id = $1;`;
             const conn = await Client.connect();
             const result = await conn.query(sql, [userid]);
             conn.release();

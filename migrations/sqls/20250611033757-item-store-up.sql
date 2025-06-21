@@ -1,41 +1,46 @@
-CREATE TABLE IF NOT EXISTS products 
-	(id SERIAL PRIMARY KEY, 
-		name varchar(30), 
-		price decimal(10,2), 
-		category varchar(30)
-	);
+CREATE TABLE IF NOT EXISTS products
+    (id SERIAL PRIMARY KEY,
+        name varchar(30) NOT NULL,
+        price decimal(10,2) NOT NULL,
+        category varchar(30) NOT NULL
+    );
+
 CREATE TABLE IF NOT EXISTS users
-	(id SERIAL PRIMARY KEY, 
-		firstName varchar(30), 
-		lastName varchar(30), 
-		password varchar(100)
-	);
+    (id SERIAL PRIMARY KEY,
+        username varchar(30) UNIQUE NOT NULL,
+        firstName varchar(30) NOT NULL,
+        lastName varchar(30) NOT NULL,
+        password varchar(100) NOT NULL
+    );
 
 CREATE TABLE IF NOT EXISTS orders
-	(id SERIAL PRIMARY KEY, 
-		userid INT REFERENCES users(id),
-		status varchar(30),
-		orderid INT, 
-		order_line_items JSONB
-	);
-TRUNCATE TABLE orders RESTART IDENTITY CASCADE;
-TRUNCATE TABLE users RESTART IDENTITY CASCADE;
-TRUNCATE TABLE products RESTART IDENTITY CASCADE;
+    (id SERIAL PRIMARY KEY,
+        userid INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        status varchar(30) NOT NULL
+    );
 
--- 1. Insert 10 Users
-INSERT INTO users (firstName, lastName, password) VALUES
-('Alice', 'Smith', '$2b$10$a2LPNRgBGjyDtezTiB8xoezMQHSzT47/ujMkGYJwz8d4Y/JbNABSK'),
-('Bob', 'Johnson', '$2b$10$Op/SlgFVNLLpIv4eC35OKeMmztXHahrbgiQuy.Z7ZMtU1hqUPhMsC'),
-('Charlie', 'Brown', '$2b$10$gUYKgG6zrhUyp6W3fJ.8RO3uyE0OPUCIL6Va3ERTT5/O4Fd4flRwu'),
-('Diana', 'Prince', '$2b$10$SOMQcnp6WkefiuNd6B6JHuLmswFxgyHfmH2GEYwLQOleOxiDE3.9a'),
-('Eve', 'Adams', '$2b$10$K1YcVwnbXmw5oe51RDpuROPrFfQVsWhdoTsDJLVTxKKLr0yoelkZW'),
-('Frank', 'White', '$2b$10$ybfDshwkuznsBzNdRNAr5eaJRZAxWFH/LewA/1d9lv8NwVyRyC.1W'),
-('Grace', 'Miller', '$2b$10$a0oGLlidK7wBqMFOWXXg.eiJVnIIos8RkqnxkCrkuHUVRntBK.PTS'),
-('Heidi', 'Green', '$2b$10$qpRDczFbhFGYZ2.7M550CehgE1ZDTFWRoX3.2uloW18EBuxh9Y8Im'),
-('Ivan', 'Petrov', '$2b$10$aaxnndT0K/y3C4UeJmems.fm57cTVzzzvebkqKvSSlFJYZa7N5XBy'),
-('Judy', 'Taylor', '$2b$10$AoMyE2OxSt/Au3b44JGsP.NwmCkx.9tH1eHHakCQO9JBrRq9TwJm2');
+CREATE TABLE IF NOT EXISTS order_items
+    (id SERIAL PRIMARY KEY,
+        order_id INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+        quantity INT NOT NULL CHECK (quantity > 0),
+        price_at_purchase decimal(10,2) NOT NULL,
+        product_name_at_purchase varchar(30) NOT NULL,
+        product_category_at_purchase varchar(30) NOT NULL
+    );
 
--- 2. Insert 15 Products (Home Help Robots)
+INSERT INTO users (username, firstName, lastName, password) VALUES
+('asmith', 'Alice', 'Smith', '$2b$10$sH2OfbWMTIb6gkXEfVKBsOEko49cMM9mHQtU2zChT66SJRPEz/HRi'), -- password123
+('bobj', 'Bob', 'Johnson', '$2b$10$OA6tdHkeK4go43PTyjlfxuN6/p5fUs1nJndtTZT/.NCRTLaAuW3Ya'), -- securepass
+('chuckBrown', 'Charlie', 'Brown', '$2b$10$/OgHiblti5t.e3zQL3vbZeXSZAz4dUb71cZm7ge0d.BQH1t5RW49K'), -- MySecretPass!23
+('wwoman', 'Diana', 'Prince', '$2b$10$OtrojWNu1ztlfM2.Wp6vs.I/08UM.kLgS2PoXC09h1XpDtpBGnXwK'), -- AnotherHash
+('evea', 'Eve', 'Adams', '$2b$10$e5zmjM38DEuQCQYi/Kj2Fut/DyPN//Dl4HxDDcS.QsyC/Mn/KDu9S'), -- WebDevRocks
+('sirfrank', 'Frank', 'White', '$2b$10$17E84OdcpNmk.IoBeRxN6.Bt2UcvML5cmYJU//BkKYxaSWYTtzyuO'), -- RobotLove
+('griller', 'Grace', 'Miller', '$2b$10$UYEGNHgRt7NWdBh.xF6nQ.NfQTJe95dmB9BZDBM1mM9106YABt0Ye'), -- DataSecure
+('greenh', 'Heidi', 'Green', '$2b$10$pWfYKR..PQAu4YAPI8cXn.6IB3Hrdcwd0AJ4HYefFqXpdWbXnWKNy'), -- Testing123
+('ipetro', 'Ivan', 'Petrov', '$2b$10$x0ZFZe2feExgYA3pDJm1seA/lGY9ylO1.3BAFtgEcP5danf.y/S/6'), -- FinalPass
+('chuckswife', 'Judy', 'Taylor', '$2b$10$DVTNwJPABpPolD1TGEyEeOoNbyDDO85150Uz6EnOhdJpecaZnBima'); -- SuperStrong
+
 INSERT INTO products (name, price, category) VALUES
 ('DustBot 3000', 199.99, 'General Cleaning'),
 ('DishWash-Pro', 349.50, 'General Cleaning'),
@@ -54,188 +59,116 @@ INSERT INTO products (name, price, category) VALUES
 ('Kids Playroom Pickup', 220.00, 'General Cleaning');
 
 
--- 3. Insert 25 Orders
+INSERT INTO orders (userid, status) VALUES (1, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 1 AND status = 'open' ORDER BY id DESC LIMIT 1), 1, 1, 199.99, (SELECT name FROM products WHERE id = 1), (SELECT category FROM products WHERE id = 1)),
+((SELECT id FROM orders WHERE userid = 1 AND status = 'open' ORDER BY id DESC LIMIT 1), 2, 1, 349.50, (SELECT name FROM products WHERE id = 2), (SELECT category FROM products WHERE id = 2));
 
--- Order 1 (User 1 - Alice) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(1, 'open', 1001, '[
-    {"product_id": 1, "quantity": 1, "price_at_purchase": 199.99},
-    {"product_id": 2, "quantity": 1, "price_at_purchase": 349.50}
-]');
+INSERT INTO orders (userid, status) VALUES (2, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 2 AND status = 'closed' ORDER BY id DESC LIMIT 1), 3, 2, 249.99, (SELECT name FROM products WHERE id = 3), (SELECT category FROM products WHERE id = 3));
 
--- Order 2 (User 2 - Bob) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(2, 'closed', 1002, '[
-    {"product_id": 3, "quantity": 2, "price_at_purchase": 249.99}
-]');
+INSERT INTO orders (userid, status) VALUES (3, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 3 AND status = 'open' ORDER BY id DESC LIMIT 1), 4, 1, 299.00, (SELECT name FROM products WHERE id = 4), (SELECT category FROM products WHERE id = 4)),
+((SELECT id FROM orders WHERE userid = 3 AND status = 'open' ORDER BY id DESC LIMIT 1), 5, 1, 499.00, (SELECT name FROM products WHERE id = 5), (SELECT category FROM products WHERE id = 5));
 
--- Order 3 (User 3 - Charlie) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(3, 'open', 1003, '[
-    {"product_id": 4, "quantity": 1, "price_at_purchase": 299.00},
-    {"product_id": 5, "quantity": 1, "price_at_purchase": 499.00}
-]');
+INSERT INTO orders (userid, status) VALUES (4, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 4 AND status = 'closed' ORDER BY id DESC LIMIT 1), 6, 1, 599.99, (SELECT name FROM products WHERE id = 6), (SELECT category FROM products WHERE id = 6));
 
--- Order 4 (User 4 - Diana) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(4, 'closed', 1004, '[
-    {"product_id": 6, "quantity": 1, "price_at_purchase": 599.99}
-]');
+INSERT INTO orders (userid, status) VALUES (5, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 5 AND status = 'closed' ORDER BY id DESC LIMIT 1), 7, 1, 650.75, (SELECT name FROM products WHERE id = 7), (SELECT category FROM products WHERE id = 7)),
+((SELECT id FROM orders WHERE userid = 5 AND status = 'closed' ORDER BY id DESC LIMIT 1), 8, 3, 150.00, (SELECT name FROM products WHERE id = 8), (SELECT category FROM products WHERE id = 8));
 
--- Order 5 (User 5 - Eve) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(5, 'closed', 1005, '[
-    {"product_id": 7, "quantity": 1, "price_at_purchase": 650.75},
-    {"product_id": 8, "quantity": 3, "price_at_purchase": 150.00}
-]');
+INSERT INTO orders (userid, status) VALUES (6, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 6 AND status = 'open' ORDER BY id DESC LIMIT 1), 9, 1, 380.00, (SELECT name FROM products WHERE id = 9), (SELECT category FROM products WHERE id = 9));
 
--- Order 6 (User 6 - Frank) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(6, 'open', 1006, '[
-    {"product_id": 9, "quantity": 1, "price_at_purchase": 380.00}
-]');
+INSERT INTO orders (userid, status) VALUES (7, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 7 AND status = 'closed' ORDER BY id DESC LIMIT 1), 10, 1, 275.50, (SELECT name FROM products WHERE id = 10), (SELECT category FROM products WHERE id = 10)),
+((SELECT id FROM orders WHERE userid = 7 AND status = 'closed' ORDER BY id DESC LIMIT 1), 11, 1, 420.00, (SELECT name FROM products WHERE id = 11), (SELECT category FROM products WHERE id = 11));
 
--- Order 7 (User 7 - Grace) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(7, 'closed', 1007, '[
-    {"product_id": 10, "quantity": 1, "price_at_purchase": 275.50},
-    {"product_id": 11, "quantity": 1, "price_at_purchase": 420.00}
-]');
+INSERT INTO orders (userid, status) VALUES (8, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 8 AND status = 'open' ORDER BY id DESC LIMIT 1), 12, 1, 310.00, (SELECT name FROM products WHERE id = 12), (SELECT category FROM products WHERE id = 12));
 
--- Order 8 (User 8 - Heidi) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(8, 'open', 1008, '[
-    {"product_id": 12, "quantity": 1, "price_at_purchase": 310.00}
-]');
+INSERT INTO orders (userid, status) VALUES (9, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 9 AND status = 'closed' ORDER BY id DESC LIMIT 1), 13, 1, 390.00, (SELECT name FROM products WHERE id = 13), (SELECT category FROM products WHERE id = 13)),
+((SELECT id FROM orders WHERE userid = 9 AND status = 'closed' ORDER BY id DESC LIMIT 1), 14, 1, 180.00, (SELECT name FROM products WHERE id = 14), (SELECT category FROM products WHERE id = 14));
 
--- Order 9 (User 9 - Ivan) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(9, 'closed', 1009, '[
-    {"product_id": 13, "quantity": 1, "price_at_purchase": 390.00},
-    {"product_id": 14, "quantity": 1, "price_at_purchase": 180.00}
-]');
+INSERT INTO orders (userid, status) VALUES (10, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 10 AND status = 'open' ORDER BY id DESC LIMIT 1), 15, 1, 220.00, (SELECT name FROM products WHERE id = 15), (SELECT category FROM products WHERE id = 15));
 
--- Order 10 (User 10 - Judy) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(10, 'open', 1010, '[
-    {"product_id": 15, "quantity": 1, "price_at_purchase": 220.00}
-]');
+INSERT INTO orders (userid, status) VALUES (1, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 1 AND status = 'closed' ORDER BY id DESC LIMIT 1), 3, 1, 249.99, (SELECT name FROM products WHERE id = 3), (SELECT category FROM products WHERE id = 3)),
+((SELECT id FROM orders WHERE userid = 1 AND status = 'closed' ORDER BY id DESC LIMIT 1), 7, 1, 650.75, (SELECT name FROM products WHERE id = 7), (SELECT category FROM products WHERE id = 7));
 
--- Remaining 15 Orders (Mix of users, products, and statuses)
+INSERT INTO orders (userid, status) VALUES (2, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 2 AND status = 'open' ORDER BY id DESC LIMIT 1), 1, 2, 199.99, (SELECT name FROM products WHERE id = 1), (SELECT category FROM products WHERE id = 1));
 
--- Order 11 (User 1 - Alice) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(1, 'closed', 1011, '[
-    {"product_id": 3, "quantity": 1, "price_at_purchase": 249.99},
-    {"product_id": 7, "quantity": 1, "price_at_purchase": 650.75}
-]');
+INSERT INTO orders (userid, status) VALUES (3, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 3 AND status = 'closed' ORDER BY id DESC LIMIT 1), 9, 1, 380.00, (SELECT name FROM products WHERE id = 9), (SELECT category FROM products WHERE id = 9)),
+((SELECT id FROM orders WHERE userid = 3 AND status = 'closed' ORDER BY id DESC LIMIT 1), 10, 1, 275.50, (SELECT name FROM products WHERE id = 10), (SELECT category FROM products WHERE id = 10));
 
--- Order 12 (User 2 - Bob) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(2, 'open', 1012, '[
-    {"product_id": 1, "quantity": 2, "price_at_purchase": 199.99}
-]');
+INSERT INTO orders (userid, status) VALUES (4, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 4 AND status = 'open' ORDER BY id DESC LIMIT 1), 2, 1, 349.50, (SELECT name FROM products WHERE id = 2), (SELECT category FROM products WHERE id = 2));
 
--- Order 13 (User 3 - Charlie) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(3, 'closed', 1013, '[
-    {"product_id": 9, "quantity": 1, "price_at_purchase": 380.00},
-    {"product_id": 10, "quantity": 1, "price_at_purchase": 275.50}
-]');
+INSERT INTO orders (userid, status) VALUES (5, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 5 AND status = 'closed' ORDER BY id DESC LIMIT 1), 13, 1, 390.00, (SELECT name FROM products WHERE id = 13), (SELECT category FROM products WHERE id = 13));
 
--- Order 14 (User 4 - Diana) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(4, 'open', 1014, '[
-    {"product_id": 2, "quantity": 1, "price_at_purchase": 349.50}
-]');
+INSERT INTO orders (userid, status) VALUES (6, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 6 AND status = 'closed' ORDER BY id DESC LIMIT 1), 15, 1, 220.00, (SELECT name FROM products WHERE id = 15), (SELECT category FROM products WHERE id = 15)),
+((SELECT id FROM orders WHERE userid = 6 AND status = 'closed' ORDER BY id DESC LIMIT 1), 1, 1, 199.99, (SELECT name FROM products WHERE id = 1), (SELECT category FROM products WHERE id = 1));
 
--- Order 15 (User 5 - Eve) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(5, 'closed', 1015, '[
-    {"product_id": 13, "quantity": 1, "price_at_purchase": 390.00}
-]');
+INSERT INTO orders (userid, status) VALUES (7, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 7 AND status = 'open' ORDER BY id DESC LIMIT 1), 4, 1, 299.00, (SELECT name FROM products WHERE id = 4), (SELECT category FROM products WHERE id = 4));
 
--- Order 16 (User 6 - Frank) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(6, 'closed', 1016, '[
-    {"product_id": 15, "quantity": 1, "price_at_purchase": 220.00},
-    {"product_id": 1, "quantity": 1, "price_at_purchase": 199.99}
-]');
+INSERT INTO orders (userid, status) VALUES (8, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 8 AND status = 'closed' ORDER BY id DESC LIMIT 1), 8, 2, 150.00, (SELECT name FROM products WHERE id = 8), (SELECT category FROM products WHERE id = 8)),
+((SELECT id FROM orders WHERE userid = 8 AND status = 'closed' ORDER BY id DESC LIMIT 1), 12, 1, 310.00, (SELECT name FROM products WHERE id = 12), (SELECT category FROM products WHERE id = 12));
 
--- Order 17 (User 7 - Grace) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(7, 'open', 1017, '[
-    {"product_id": 4, "quantity": 1, "price_at_purchase": 299.00}
-]');
+INSERT INTO orders (userid, status) VALUES (9, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 9 AND status = 'open' ORDER BY id DESC LIMIT 1), 5, 1, 499.00, (SELECT name FROM products WHERE id = 5), (SELECT category FROM products WHERE id = 5));
 
--- Order 18 (User 8 - Heidi) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(8, 'closed', 1018, '[
-    {"product_id": 8, "quantity": 2, "price_at_purchase": 150.00},
-    {"product_id": 12, "quantity": 1, "price_at_purchase": 310.00}
-]');
+INSERT INTO orders (userid, status) VALUES (10, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 10 AND status = 'closed' ORDER BY id DESC LIMIT 1), 6, 1, 599.99, (SELECT name FROM products WHERE id = 6), (SELECT category FROM products WHERE id = 6));
 
--- Order 19 (User 9 - Ivan) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(9, 'open', 1019, '[
-    {"product_id": 5, "quantity": 1, "price_at_purchase": 499.00}
-]');
+INSERT INTO orders (userid, status) VALUES (1, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 1 AND status = 'open' ORDER BY id DESC LIMIT 1), 1, 3, 199.99, (SELECT name FROM products WHERE id = 1), (SELECT category FROM products WHERE id = 1)),
+((SELECT id FROM orders WHERE userid = 1 AND status = 'open' ORDER BY id DESC LIMIT 1), 10, 1, 275.50, (SELECT name FROM products WHERE id = 10), (SELECT category FROM products WHERE id = 10)),
+((SELECT id FROM orders WHERE userid = 1 AND status = 'open' ORDER BY id DESC LIMIT 1), 14, 1, 180.00, (SELECT name FROM products WHERE id = 14), (SELECT category FROM products WHERE id = 14));
 
--- Order 20 (User 10 - Judy) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(10, 'closed', 1020, '[
-    {"product_id": 6, "quantity": 1, "price_at_purchase": 599.99}
-]');
+INSERT INTO orders (userid, status) VALUES (2, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 2 AND status = 'closed' ORDER BY id DESC LIMIT 1), 11, 1, 420.00, (SELECT name FROM products WHERE id = 11), (SELECT category FROM products WHERE id = 11)),
+((SELECT id FROM orders WHERE userid = 2 AND status = 'closed' ORDER BY id DESC LIMIT 1), 12, 1, 310.00, (SELECT name FROM products WHERE id = 12), (SELECT category FROM products WHERE id = 12));
 
--- Order 21 (User 1 - Alice) - Open (Multiple items, including repeat product)
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(1, 'open', 1021, '[
-    {"product_id": 1, "quantity": 3, "price_at_purchase": 199.99},
-    {"product_id": 10, "quantity": 1, "price_at_purchase": 275.50},
-    {"product_id": 14, "quantity": 1, "price_at_purchase": 180.00}
-]');
+INSERT INTO orders (userid, status) VALUES (3, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 3 AND status = 'open' ORDER BY id DESC LIMIT 1), 15, 2, 220.00, (SELECT name FROM products WHERE id = 15), (SELECT category FROM products WHERE id = 15));
 
--- Order 22 (User 2 - Bob) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(2, 'closed', 1022, '[
-    {"product_id": 11, "quantity": 1, "price_at_purchase": 420.00},
-    {"product_id": 12, "quantity": 1, "price_at_purchase": 310.00}
-]');
+INSERT INTO orders (userid, status) VALUES (4, 'closed');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 4 AND status = 'closed' ORDER BY id DESC LIMIT 1), 5, 1, 499.00, (SELECT name FROM products WHERE id = 5), (SELECT category FROM products WHERE id = 5)),
+((SELECT id FROM orders WHERE userid = 4 AND status = 'closed' ORDER BY id DESC LIMIT 1), 7, 1, 650.75, (SELECT name FROM products WHERE id = 7), (SELECT category FROM products WHERE id = 7));
 
--- Order 23 (User 3 - Charlie) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(3, 'open', 1023, '[
-    {"product_id": 15, "quantity": 2, "price_at_purchase": 220.00}
-]');
-
--- Order 24 (User 4 - Diana) - closed
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(4, 'closed', 1024, '[
-    {"product_id": 5, "quantity": 1, "price_at_purchase": 499.00},
-    {"product_id": 7, "quantity": 1, "price_at_purchase": 650.75}
-]');
-
--- Order 25 (User 5 - Eve) - Open
-INSERT INTO orders (userid, status, orderid, order_line_items) VALUES
-(5, 'open', 1025, '[
-    {"product_id": 9, "quantity": 1, "price_at_purchase": 380.00},
-    {"product_id": 13, "quantity": 1, "price_at_purchase": 390.00}
-]');
-
-UPDATE orders o
-SET order_line_items = (
-    SELECT
-        jsonb_agg(
-            jsonb_build_object(
-                'product_id', oli.value ->> 'product_id',
-                'quantity', oli.value ->> 'quantity',
-                'price_at_purchase', oli.value ->> 'price_at_purchase',
-                'product_name', p.name,
-                'product_category', p.category
-            )
-        )
-    FROM
-        jsonb_array_elements(o.order_line_items) AS oli(value)
-    JOIN
-        products p ON (oli.value ->> 'product_id')::INTEGER = p.id
-);
+INSERT INTO orders (userid, status) VALUES (5, 'open');
+INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_name_at_purchase, product_category_at_purchase) VALUES
+((SELECT id FROM orders WHERE userid = 5 AND status = 'open' ORDER BY id DESC LIMIT 1), 9, 1, 380.00, (SELECT name FROM products WHERE id = 9), (SELECT category FROM products WHERE id = 9)),
+((SELECT id FROM orders WHERE userid = 5 AND status = 'open' ORDER BY id DESC LIMIT 1), 13, 1, 390.00, (SELECT name FROM products WHERE id = 13), (SELECT category FROM products WHERE id = 13));

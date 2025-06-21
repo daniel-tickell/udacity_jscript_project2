@@ -2,7 +2,6 @@ import { OrderStore } from '../models/orders.js';
 import jwt from 'jsonwebtoken';
 const orders = new OrderStore();
 const showOrders = async (req, res) => {
-    console.log(`Show Orders ${req.params.userid}`);
     let showOrders;
     try {
         if (req.params.type = 'open') {

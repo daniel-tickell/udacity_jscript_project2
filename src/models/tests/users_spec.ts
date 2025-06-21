@@ -29,7 +29,8 @@ describe("User tests: ", () => {
   const result = await users.show(1);
   
   expect(result).toEqual({
-        id: 1,        
+        id: 1,
+        username: 'asmith',       
         firstname: 'Alice',
         lastname: 'Smith',
         password: jasmine.any(String)
@@ -41,12 +42,14 @@ describe("User tests: ", () => {
   it('create method should return user and hashed password', async () => {
   const result = await users.create(
     {
+      username: "thisguy",
       firstname: 'This',
       lastname: 'TestUser',
       password: 'itsBeenALongDay'
     });
     expect(result).toEqual({
-        id: jasmine.any(Number),        
+        id: jasmine.any(Number),    
+        username: 'thisguy',    
         firstname: 'This',
         lastname: 'TestUser',
         password: jasmine.any(String)

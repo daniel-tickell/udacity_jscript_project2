@@ -46,32 +46,118 @@ These are the notes from a meeting with the frontend developer that describe wha
 	  }
 	  ```
 
-#### Orders
+#### Orders (Tests Done)
 - Current Order by user (args: user id)[token required]
 	- 127.0.0.1:3000/orders/open/1
 
 - [OPTIONAL] Completed Orders by user (args: user id)[token required]
 	- 127.0.0.1:3000/orders/closed/1
 
-## Data Base Schema
+## Database Schema
 
-Table Name products 
-	id (Implicit) 
-	name (String) 
-	price (Number)
-	category (String)
-	
-Table Name users
-	id (Implicit) 
-	firstName (String) 
-	lastName (String)
-	password (Salted Hash)
-
-Table Name orders
-	id (Implicit) 
-	userid (Number REFERENCES users(id))
-	status (String)
-	orderid (Number)
-	order_line_items (JSONB)
-
-
+<table>
+  <thead>
+    <tr>
+      <th>Table Name</th>
+      <th>Column Name</th>
+      <th>Data Type</th>
+      <th>Constraints/Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4">products</td>
+      <td>id</td>
+      <td>SERIAL</td>
+      <td>PRIMARY KEY</td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>price</td>
+      <td>decimal(10,2)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>category</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+  <tr>
+      <td rowspan="4">products</td>
+      <td>id</td>
+      <td>SERIAL</td>
+      <td>PRIMARY KEY</td>
+    </tr>
+    <tr>
+       <td>name</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>price</td>
+      <td>decimal(10,2)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>category</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td rowspan="3">orders</td>
+      <td>id</td>
+      <td>SERIAL</td>
+      <td>PRIMARY KEY</td>
+    </tr>
+    <tr>
+      <td>userid</td>
+      <td>INT</td>
+      <td>NOT NULL, FOREIGN KEY (users.id) ON DELETE CASCADE</td>
+    </tr>
+    <tr>
+      <td>status</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td rowspan="7">order_items</td>
+      <td>id</td>
+      <td>SERIAL</td>
+      <td>PRIMARY KEY</td>
+    </tr>
+    <tr>
+      <td>order_id</td>
+      <td>INT</td>
+      <td>NOT NULL, FOREIGN KEY (orders.id) ON DELETE CASCADE</td>
+    </tr>
+    <tr>
+      <td>product_id</td>
+      <td>INT</td>
+      <td>NOT NULL, FOREIGN KEY (products.id) ON DELETE CASCADE</td>
+    </tr>
+    <tr>
+      <td>quantity</td>
+      <td>INT</td>
+      <td>NOT NULL, CHECK (quantity > 0)</td>
+    </tr>
+    <tr>
+      <td>price_at_purchase</td>
+      <td>decimal(10,2)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>product_name_at_purchase</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+    <tr>
+      <td>product_category_at_purchase</td>
+      <td>varchar(30)</td>
+      <td>NOT NULL</td>
+    </tr>
+  </tbody>
+</table>

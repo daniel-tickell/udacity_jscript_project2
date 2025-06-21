@@ -19,7 +19,7 @@ export class ItemStore {
             const conn = await Client.connect();
             const result = await conn.query(sql, [id]);
             conn.release();
-            console.log("product id query route hit (products)");
+            console.log("show route hit (products)");
             result.rows[0].price = parseFloat(result.rows[0].price);
             result.rows[0].id = parseFloat(result.rows[0].id);
             return result.rows[0];

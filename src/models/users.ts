@@ -7,6 +7,7 @@ const saltRounds = process.env.SALT_ROUNDS || '10'; // Provide a default value
 
 export type User = {
 	id?: number; 
+  username?: string;
 	firstname: string; 
   lastname: string;    
 	password: string;
@@ -14,6 +15,27 @@ export type User = {
 
 
 export class UserStore {
+
+  async authenticate(username: string, password: string): Promise<string | null> {
+    console.log('Authenticate Route hit (users')
+    try{
+      const conn = await Client.connect()
+      const sql = 'SELECT * FROM users WHERE username = $1';
+      const result = await conn.query(sql, [username])
+      conn.release()
+       if (result.rows.length) {
+          const isValidPassword = bcrypt.compareSync(password + pepper, result.rows[0].password);
+          if (isValidPassword) {
+            return username
+          }
+        }
+    return null;
+      
+    } catch (err) {
+      throw new Error(`Could not authenticate user. Error: ${err}`)
+    }
+  }
+
   async index(): Promise<User[]> {
     console.log("index route hit (users)")
     try {
@@ -44,11 +66,11 @@ export class UserStore {
   async create(b: User): Promise<User> {
     console.log("create route hit (users)")
       try {
-    const sql = 'INSERT INTO users (firstname, lastname, password) VALUES($1, $2, $3) RETURNING *'
+    const sql = 'INSERT INTO users (username, firstname, lastname, password) VALUES($1, $2, $3, $4) RETURNING *'
     const conn = await Client.connect()
     const hash = bcrypt.hashSync(b.password + pepper, parseInt(saltRounds))
     const result = await conn
-        .query(sql, [b.firstname, b.lastname, hash])
+        .query(sql, [b.username, b.firstname, b.lastname, hash])
     const user = result.rows[0]
     conn.release()
     if (!user) {

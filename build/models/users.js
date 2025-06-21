@@ -3,7 +3,27 @@ import bcrypt from 'bcrypt';
 const pepper = process.env.BCRYPT_PASSWORD || ''; // Provide a default value
 const saltRounds = process.env.SALT_ROUNDS || '10'; // Provide a default value
 export class UserStore {
+    async authenticate(username, password) {
+        console.log('Authenticate Route hit (users');
+        try {
+            const conn = await Client.connect();
+            const sql = 'SELECT * FROM users WHERE username = $1';
+            const result = await conn.query(sql, [username]);
+            conn.release();
+            if (result.rows.length) {
+                const isValidPassword = bcrypt.compareSync(password + pepper, result.rows[0].password);
+                if (isValidPassword) {
+                    return username;
+                }
+            }
+            return null;
+        }
+        catch (err) {
+            throw new Error(`Could not authenticate user. Error: ${err}`);
+        }
+    }
     async index() {
+        console.log("index route hit (users)");
         try {
             const conn = await Client.connect();
             const sql = 'SELECT * FROM users';
@@ -16,12 +36,12 @@ export class UserStore {
         }
     }
     async show(id) {
+        console.log("show route hit (users)");
         try {
             const sql = 'SELECT * FROM users WHERE id=$1';
             const conn = await Client.connect();
             const result = await conn.query(sql, [id]);
             conn.release();
-            console.log("product id query route hit (users)");
             result.rows[0].id = parseInt(result.rows[0].id);
             return result.rows[0];
         }
@@ -30,14 +50,14 @@ export class UserStore {
         }
     }
     async create(b) {
+        console.log("create route hit (users)");
         try {
-            const sql = 'INSERT INTO users (firstname, lastname, password) VALUES($1, $2, $3) RETURNING *';
+            const sql = 'INSERT INTO users (username, firstname, lastname, password) VALUES($1, $2, $3, $4) RETURNING *';
             const conn = await Client.connect();
             const hash = bcrypt.hashSync(b.password + pepper, parseInt(saltRounds));
             const result = await conn
-                .query(sql, [b.firstname, b.lastname, hash]);
+                .query(sql, [b.username, b.firstname, b.lastname, hash]);
             const user = result.rows[0];
-            console.log("create route hit (users)");
             conn.release();
             if (!user) {
                 throw new Error("User creation failed, no user returned from database.");
