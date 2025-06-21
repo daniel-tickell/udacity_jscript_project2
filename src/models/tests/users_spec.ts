@@ -15,6 +15,9 @@ describe("User Endpoints: ", () => {
   it("should have a create method", () => {
     expect(users.create).toBeDefined();
   });
+  it("should have a authenticate method", () => {
+    expect(users.authenticate).toBeDefined();
+  });
 });
 
 describe("User tests: ", () => {

@@ -17,8 +17,8 @@ POSTGRES_TEST_USER= item_store_test
 POSTGRES_TEST_PASSWORD= password123
 ENV=prod
 SALT_ROUNDS=10
-BCRYPT_PASSWORD=awesome_password_123
-TOKEN_SECRET=awesome_token_secret
+BCRYPT_PASSWORD=password123drowssap
+TOKEN_SECRET=alongcomesacandletolighttheway
 ```
 
 3. Initialize and install the required modules
