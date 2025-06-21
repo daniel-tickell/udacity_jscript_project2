@@ -1,10 +1,10 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import productRoutes from './handlers/products.js';
-import userRoutes from './handlers/users.js';
-import orderRoutes from './handlers/orders.js';
+import express from "express";
+import bodyParser from "body-parser";
+import productRoutes from "./handlers/products.js";
+import userRoutes from "./handlers/users.js";
+import orderRoutes from "./handlers/orders.js";
 //import { Item, ItemStore } from './models/products.js'
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 const result = dotenv.config();
 if (result.error) {
     throw result.error;

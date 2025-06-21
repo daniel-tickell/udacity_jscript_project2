@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.ts",
     "jasmine": "jasmine",
+    "prettier": "prettier -w .",
     "watch": "tsc-watch --onSuccess \"node ./build/server.js\"",
     "build": "npx tsc",
     "test": "db-migrate -e test down && npm run build && db-migrate -e test up && cross-env ENV=test jasmine"
@@ -35,6 +36,7 @@
     "jasmine": "^5.7.1",
     "jasmine-spec-reporter": "^6.0.0",
     "jasmine-ts": "^0.3.0",
+    "prettier": "^3.5.3",
     "ts-node": "^9.1.1",
     "tsc-watch": "^4.2.9"
   }

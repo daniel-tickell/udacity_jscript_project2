@@ -1,13 +1,13 @@
-import { OrderStore } from '../models/orders.js';
-import jwt from 'jsonwebtoken';
+import { OrderStore } from "../models/orders.js";
+import jwt from "jsonwebtoken";
 const orders = new OrderStore();
 const showOrders = async (req, res) => {
     let showOrders;
     try {
-        if (req.params.type = 'open') {
+        if ((req.params.type = "open")) {
             showOrders = await orders.showopen(parseInt(req.params.userid));
         }
-        else if (req.params.type = 'closed') {
+        else if ((req.params.type = "closed")) {
             showOrders = await orders.showclosed(parseInt(req.params.userid));
         }
         else {
@@ -22,7 +22,7 @@ const showOrders = async (req, res) => {
     }
 };
 const orderRoutes = (app) => {
-    app.get('/orders/:type/:userid', showOrders);
+    app.get("/orders/:type/:userid", showOrders);
 };
 export default orderRoutes;
 //# sourceMappingURL=orders.js.map

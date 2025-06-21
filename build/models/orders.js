@@ -1,4 +1,4 @@
-import Client from '../database.js';
+import Client from "../database.js";
 export class OrderStore {
     async showopen(userid) {
         console.log("show open route hit (orders)");

@@ -1,9 +1,9 @@
-import Client from '../database.js';
+import Client from "../database.js";
 export class ItemStore {
     async index() {
         try {
             const conn = await Client.connect();
-            const sql = 'SELECT * FROM products';
+            const sql = "SELECT * FROM products";
             const result = await conn.query(sql);
             conn.release();
             console.log("index route hit (products)");
@@ -15,7 +15,7 @@ export class ItemStore {
     }
     async show(id) {
         try {
-            const sql = 'SELECT * FROM products WHERE id=($1)';
+            const sql = "SELECT * FROM products WHERE id=($1)";
             const conn = await Client.connect();
             const result = await conn.query(sql, [id]);
             conn.release();
@@ -30,10 +30,9 @@ export class ItemStore {
     }
     async create(b) {
         try {
-            const sql = 'INSERT INTO products (name, price, category) VALUES($1, $2, $3) RETURNING *';
+            const sql = "INSERT INTO products (name, price, category) VALUES($1, $2, $3) RETURNING *";
             const conn = await Client.connect();
-            const result = await conn
-                .query(sql, [b.name, b.price, b.category]);
+            const result = await conn.query(sql, [b.name, b.price, b.category]);
             const item = result.rows[0];
             console.log("create route hit (products)");
             conn.release();
