@@ -42,8 +42,12 @@ db-migrate -e prod up
 yarn watch
 ```
 
+Now that the server is running, and postgres is installed the ports for this setup are
+- postgres 5432
+- express server 3000
 
-# Template
+
+# This project was forked from this repositary 
  - Forked from https://github.com/udacity/nd0067-c2-creating-an-api-with-postgresql-and-express-project-starter
 
 ## Getting Started

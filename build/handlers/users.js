@@ -26,6 +26,7 @@ const authenticate = async (req, res) => {
     }
     try {
         const authenticatedUser = await user.authenticate(username, password);
+        console.log(authenticatedUser);
         if (!authenticatedUser) {
             return res.status(401).json({ error: 'Authentication failed: Invalid credentials.' });
         }

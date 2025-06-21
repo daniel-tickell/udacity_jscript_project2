@@ -4,14 +4,16 @@ const pepper = process.env.BCRYPT_PASSWORD || ''; // Provide a default value
 const saltRounds = process.env.SALT_ROUNDS || '10'; // Provide a default value
 export class UserStore {
     async authenticate(username, password) {
-        console.log('Authenticate Route hit (users');
+        console.log('Authenticate Route hit (users)');
         try {
             const conn = await Client.connect();
             const sql = 'SELECT * FROM users WHERE username = $1';
             const result = await conn.query(sql, [username]);
             conn.release();
             if (result.rows.length) {
+                console.log(password);
                 const isValidPassword = bcrypt.compareSync(password + pepper, result.rows[0].password);
+                console.log(`password check ${isValidPassword}`);
                 if (isValidPassword) {
                     return username;
                 }

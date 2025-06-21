@@ -17,7 +17,7 @@ export type User = {
 export class UserStore {
 
   async authenticate(username: string, password: string): Promise<string | null> {
-    console.log('Authenticate Route hit (users')
+    console.log('Authenticate Route hit (users)')
     try{
       const conn = await Client.connect()
       const sql = 'SELECT * FROM users WHERE username = $1';

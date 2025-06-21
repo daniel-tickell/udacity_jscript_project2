@@ -56,8 +56,18 @@ describe("User tests: ", () => {
     });
     //check for hashed password
     expect(result.password).toContain('$2b$10');
-
   });
+
+  it('Authenticate method should return the userbame for a valid user', async () => {
+  const result = await users.authenticate('chuckBrown','MySecretPass!23');
+    expect(result).toEqual('chuckBrown');
+  });
+
+  it('Authenticate method should return null for a invalid user', async () => {
+  const result = await users.authenticate('','itsBeenALongDay');
+    expect(result).toBeNull();
+  });
+
 });
 
 console.log('User Tests Complete');
