@@ -24,7 +24,7 @@ TOKEN_SECRET=alongcomesacandletolighttheway
 3. Initialize and install the required modules
  * npm init 
  * npm i bcrypt body-parser db-migrate db-migrate-pg dotenv express jsonwebtoken pg tsc typescript
- * npm i --save-dev @types/express @types/jasmine @types/pg cross-env dotenv-cli jasmine jasmine-spec-reporter jasmine-ts prettier ts-node ts-watch
+ * npm i --save-dev @types/express @types/jasmine @types/pg cross-env dotenv-cli jasmine jasmine-spec-reporter jasmine-ts prettier ts-node ts-watch supertest
 
 4. Install postgresql and create the databses and users
    Postgres commands for setup

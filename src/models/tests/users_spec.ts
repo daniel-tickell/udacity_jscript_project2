@@ -1,5 +1,7 @@
 import { User, UserStore } from "../users.js";
 import Client from "../../database.js";
+import app from '../../server.js'
+import supertest from 'supertest';
 
 const users = new UserStore();
 
@@ -67,6 +69,52 @@ describe("User tests: ", () => {
   it("Authenticate method should return null for a invalid user", async () => {
     const result = await users.authenticate("", "itsBeenALongDay");
     expect(result).toBeNull();
+  });
+
+  it('Index route should return 401 unauthenticated user', async () => {
+    const response = await supertest(app).get('/users');
+    expect(response.status).toBe(401);
+    expect(typeof response.body).toBe('string');
+  });
+
+  it('User Query route should return 401 unauthenticated user', async () => {
+    const response = await supertest(app).get('/users/1');
+    expect(response.status).toBe(401);
+    expect(typeof response.body).toBe('string');
+  });
+
+  it('User create route should return 200 User Created', async () => {
+    const response = await supertest(app)
+    .post('/users')
+    .send({
+      username: 'chuckBrownThe3rd',
+      firstname: 'Charlie',
+      lastname: 'Brown',
+      password: 'MySecretPass!23456',
+    })
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('string');
+  });
+
+it('should authenticate a user and return a token', async () => {
+    const response = await supertest(app)
+      .post('/authenticate')
+      .send({
+        username: 'chuckBrown',
+        password: 'MySecretPass!23',
+      });
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('string');
+  });
+
+  it('should return 400 if username or password is missing', async () => {
+    const response = await supertest(app)
+      .post('/authenticate')
+      .send({
+        username: 'testuser',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error).toBe('Username and password are required for authentication.');
   });
 });
 

@@ -37,6 +37,7 @@
     "jasmine-spec-reporter": "^6.0.0",
     "jasmine-ts": "^0.3.0",
     "prettier": "^3.5.3",
+    "supertest": "^7.1.1",
     "ts-node": "^9.1.1",
     "tsc-watch": "^4.2.9"
   }

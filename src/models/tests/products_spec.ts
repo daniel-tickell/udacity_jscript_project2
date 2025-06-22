@@ -1,5 +1,7 @@
 import { Item, ItemStore } from "../products.js";
 import Client from "../../database.js";
+import app from '../../server.js'
+import supertest from 'supertest';
 
 const store = new ItemStore();
 
@@ -42,6 +44,36 @@ describe("Product Test Suite", () => {
       price: 123.45,
       category: "Javascript Tests",
     });
+  });
+
+
+  it('Index route should return product information', async () => {
+    const response = await supertest(app).get('/products');
+    expect(response.status).toBe(200);
+    expect(response.body).toBeDefined();
+  });
+
+  it('Product Query route should return single product info', async () => {
+    const response = await supertest(app).get('/products/1');
+    expect(response.status).toBe(200);
+    expect(response.body)
+    .toEqual({ id: 1, 
+      name: 'DustBot 3000', 
+      price: 199.99, 
+      category: 'General Cleaning' 
+    });
+  });
+
+  it('Product create route should return 200 Product Created and JWT', async () => {
+    const response = await supertest(app)
+    .post('/products')
+    .send({
+      name: 'Super Test Bot ',
+      price: '555.55',
+      category: 'Super Test Bots',
+    })
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('string');
   });
 });
 console.log("Product Tests Complete");

@@ -1,5 +1,7 @@
 import { Order, OrderStore } from "../orders.js";
 import Client from "../../database.js";
+import app from '../../server.js'
+import supertest from 'supertest';
 
 const orders = new OrderStore();
 
@@ -33,5 +35,16 @@ describe("Order Test Suite", () => {
       order_id: 11,
     });
   });
+  it('Open Order Query route should return JWT with open orders for userid 1', async () => {
+    const response = await supertest(app).get('/orders/open/1');
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('string');
+  });
+  it('Closed order query should return closed orders for userid 1', async () => {
+    const response = await supertest(app).get('/orders/open/1');
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('string');
+  });
 });
+
 console.log("Order Tests Complete");
